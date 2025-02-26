@@ -9,5 +9,6 @@
     "statusBarItem.remoteForeground": "#e7e7e7",
     "tab.activeBorder": "#f42be4"
   },
-  "peacock.color": "#e00ccf"
+  "peacock.color": "#e00ccf",
+  "cSpell.words": ["Kernighan's", "nums", "subarrays"]
 }

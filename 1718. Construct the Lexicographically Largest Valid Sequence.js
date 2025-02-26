@@ -2,7 +2,7 @@
  * @param {number} n
  * @return {number[]}
  */
-var constructDistancedSequence = function(n) {
+const constructDistancedSequence = function(n) {
     // Length of the sequence will be 2n-1
     // (each number 2 to n appears twice, 1 appears once)
     const length = 2 * n - 1;
