@@ -3,15 +3,20 @@
  * @param {number} target
  * @return {number[]}
  */
-
-const twoSum = function (nums, target) {
-    const d = new Map();
-    for (let i = 0; ; ++i) {
-        const x = nums[i];
-        const y = target - x;
-        if (d.has(y)) {
-            return [d.get(y), i];
-        }
-        d.set(x, i);
+const twoSum = (nums, target) => {
+  const map = new Map()
+  
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i]
+    
+    if (map.has(complement)) {
+      return [map.get(complement), i]
     }
-};
+    
+    map.set(nums[i], i)
+  }
+  
+  // Per problem constraints, there is always exactly one solution
+  // This return is only here for completeness
+  return []
+}
