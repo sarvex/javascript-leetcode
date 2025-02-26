@@ -9,6 +9,42 @@ var constructDistancedSequence = function(n) {
     const result = new Array(length).fill(0);
     const used = new Array(n + 1).fill(false);
 
+    // Helper function to place number 1
+    function placeOne(pos) {
+        result[pos] = 1;
+        used[1] = true;
+
+        const success = backtrack(pos + 1);
+
+        if (!success) {
+            result[pos] = 0;
+            used[1] = false;
+        }
+
+        return success;
+    }
+
+    // Helper function to place numbers 2 to n
+    function placeNumber(num, pos) {
+        if (pos + num >= length || result[pos + num] !== 0) {
+            return false;
+        }
+
+        result[pos] = num;
+        result[pos + num] = num;
+        used[num] = true;
+
+        const success = backtrack(pos + 1);
+
+        if (!success) {
+            result[pos] = 0;
+            result[pos + num] = 0;
+            used[num] = false;
+        }
+
+        return success;
+    }
+
     function backtrack(pos) {
         // If we've filled all positions, we've found a valid sequence
         if (pos === length) return true;
@@ -20,29 +56,9 @@ var constructDistancedSequence = function(n) {
         for (let num = n; num >= 1; num--) {
             if (used[num]) continue;
 
-            if (num === 1) {
-                // For number 1, we just need one position
-                result[pos] = 1;
-                used[1] = true;
-
-                if (backtrack(pos + 1)) return true;
-
-                result[pos] = 0;
-                used[1] = false;
-            } else {
-                // For numbers 2 to n, we need two positions with distance num
-                if (pos + num >= length || result[pos + num] !== 0) continue;
-
-                result[pos] = num;
-                result[pos + num] = num;
-                used[num] = true;
-
-                if (backtrack(pos + 1)) return true;
-
-                result[pos] = 0;
-                result[pos + num] = 0;
-                used[num] = false;
-            }
+            // Place the number and check if it leads to a valid solution
+            const success = num === 1 ? placeOne(pos) : placeNumber(num, pos);
+            if (success) return true;
         }
 
         return false;

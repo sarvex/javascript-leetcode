@@ -3,7 +3,8 @@
  * @param {number} target
  * @return {number[]}
  */
-var twoSum = function (nums, target) {
+
+const twoSum = function (nums, target) {
     const d = new Map();
     for (let i = 0; ; ++i) {
         const x = nums[i];
