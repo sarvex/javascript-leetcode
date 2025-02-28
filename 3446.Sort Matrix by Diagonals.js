@@ -1,26 +1,48 @@
-function sortMatrix(grid: number[][]): number[][] {
-    const n = grid.length;
-    for (let k = n - 2; k >= 0; --k) {
-        let [i, j] = [k, 0];
-        const t: number[] = [];
-        while (i < n && j < n) {
-            t.push(grid[i++][j++]);
+/**
+ * Sorts each diagonal of a square matrix in ascending order
+ * @param {number[][]} grid - The input square matrix
+ * @return {number[][]} - The matrix with sorted diagonals
+ */
+function sortMatrix(grid) {
+    const matrixSize = grid.length;
+    
+    // Sort diagonals starting from the left side (bottom to top)
+    for (let startRow = matrixSize - 2; startRow >= 0; --startRow) {
+        let [row, col] = [startRow, 0];
+        const diagonalElements = [];
+        
+        // Collect all elements from the current diagonal
+        while (row < matrixSize && col < matrixSize) {
+            diagonalElements.push(grid[row++][col++]);
         }
-        t.sort((a, b) => a - b);
-        for (const x of t) {
-            grid[--i][--j] = x;
+        
+        // Sort the diagonal elements in ascending order
+        diagonalElements.sort((a, b) => a - b);
+        
+        // Place the sorted elements back into the diagonal
+        for (const element of diagonalElements) {
+            grid[--row][--col] = element;
         }
     }
-    for (let k = n - 2; k > 0; --k) {
-        let [i, j] = [k, n - 1];
-        const t: number[] = [];
-        while (i >= 0 && j >= 0) {
-            t.push(grid[i--][j--]);
+    
+    // Sort diagonals starting from the right side (bottom to top, excluding the main diagonal)
+    for (let startRow = matrixSize - 2; startRow > 0; --startRow) {
+        let [row, col] = [startRow, matrixSize - 1];
+        const diagonalElements = [];
+        
+        // Collect all elements from the current diagonal
+        while (row >= 0 && col >= 0) {
+            diagonalElements.push(grid[row--][col--]);
         }
-        t.sort((a, b) => a - b);
-        for (const x of t) {
-            grid[++i][++j] = x;
+        
+        // Sort the diagonal elements in ascending order
+        diagonalElements.sort((a, b) => a - b);
+        
+        // Place the sorted elements back into the diagonal
+        for (const element of diagonalElements) {
+            grid[++row][++col] = element;
         }
     }
+    
     return grid;
 }
