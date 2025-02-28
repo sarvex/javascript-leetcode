@@ -2,26 +2,42 @@
  * @param {number[]} arr
  * @return {number}
  */
-var lenLongestFibSubseq = function (arr) {
-    const n = arr.length;
-    const f = Array.from({ length: n }, () => Array(n).fill(0));
-    const d = new Map();
-    for (let i = 0; i < n; ++i) {
-        d.set(arr[i], i);
-        for (let j = 0; j < i; ++j) {
-            f[i][j] = 2;
-        }
+const lenLongestFibSubseq = (arr) => {
+  const n = arr.length;
+  // Use a Map for O(1) lookups of value to index
+  const indices = new Map();
+  for (let i = 0; i < n; i++) {
+    indices.set(arr[i], i);
+  }
+  
+  // Use a Map for the DP table instead of a 2D array to save space
+  // Key: `${j},${i}` represents the pair (arr[j], arr[i])
+  // Value: length of the Fibonacci subsequence ending with (arr[j], arr[i])
+  const dp = new Map();
+  
+  let maxLen = 0;
+  
+  // Start from the third possible element in a Fibonacci subsequence
+  for (let i = 0; i < n; i++) {
+    // Only need to check pairs where j < i
+    for (let j = 0; j < i; j++) {
+      // For a Fibonacci subsequence, we need to find if arr[i] - arr[j] exists
+      const prev = arr[i] - arr[j];
+      
+      // Skip if prev >= arr[j] as Fibonacci sequence is strictly increasing
+      if (prev >= arr[j]) continue;
+      
+      const k = indices.get(prev);
+      
+      // Check if the previous element exists and its index is less than j
+      if (k !== undefined && k < j) {
+        // Get the length of the subsequence ending at (arr[k], arr[j])
+        const prevLen = dp.get(`${k},${j}`) || 2;
+        dp.set(`${j},${i}`, prevLen + 1);
+        maxLen = Math.max(maxLen, prevLen + 1);
+      }
     }
-    let ans = 0;
-    for (let i = 2; i < n; ++i) {
-        for (let j = 1; j < i; ++j) {
-            const t = arr[i] - arr[j];
-            const k = d.get(t);
-            if (k !== undefined && k < j) {
-                f[i][j] = Math.max(f[i][j], f[j][k] + 1);
-                ans = Math.max(ans, f[i][j]);
-            }
-        }
-    }
-    return ans;
-};
+  }
+  
+  return maxLen;
+}
