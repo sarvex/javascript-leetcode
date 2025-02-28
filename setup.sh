@@ -1,20 +1,15 @@
 #!/bin/bash
 
-# Remove all markdown files
-find . -name "*.md" -type f -delete
+# Remove all files except JS and TS files
+find . -type f -not -name "*.js" -not -name "*.ts" -delete
 
-# Rename JS files to their parent directory name
-find . -name "*.js" -type f | while read file; do
-  dir_name=$(basename "$(dirname "$file")")
-  new_name="$(dirname "$(dirname "$file")")/${dir_name}.js"
-  mv -n "$file" "$new_name"
-done
-
-# Rename TS files to their parent directory name
-find . -name "*.ts" -type f | while read file; do
-  dir_name=$(basename "$(dirname "$file")")
-  new_name="$(dirname "$(dirname "$file")")/${dir_name}.js"
-  mv -n "$file" "$new_name"
+# Process JS and TS files - move up two levels and rename
+for ext in js ts; do
+  find . -name "*.$ext" -type f | while read -r file; do
+    dir=$(basename "$(dirname "$file")")
+    up2=$(dirname "$(dirname "$(dirname "$file")")")
+    mv -n "$file" "$up2/$dir.js"
+  done
 done
 
 echo "Setup completed successfully!"
