@@ -1,15 +1,26 @@
-function maxDifference(s: string): number {
-    const cnt: Record<string, number> = {};
-    for (const c of s) {
-        cnt[c] = (cnt[c] || 0) + 1;
+/**
+ * @param {string} s
+ * @return {number}
+ */
+var maxDifference = function (s) {
+  const ASCII = 97
+  const ALPHABET = 26
+
+  const freq = new Array(ALPHABET).fill(0)
+  for (let i = 0; i < s.length; i++) {
+    freq[s.charCodeAt(i) - ASCII]++
+  }
+  let maxOdd = -Infinity,
+    minEven = Infinity
+  for (let i = 0; i < 26; i++) {
+    if (freq[i] > 0) {
+      if (freq[i] % 2 !== 0 && freq[i] > maxOdd) {
+        maxOdd = freq[i]
+      }
+      if (freq[i] % 2 === 0 && freq[i] < minEven) {
+        minEven = freq[i]
+      }
     }
-    let [a, b] = [0, Infinity];
-    for (const [_, v] of Object.entries(cnt)) {
-        if (v % 2 === 1) {
-            a = Math.max(a, v);
-        } else {
-            b = Math.min(b, v);
-        }
-    }
-    return a - b;
+  }
+  return maxOdd - minEven
 }
