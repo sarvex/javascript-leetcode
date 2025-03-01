@@ -1,19 +1,33 @@
-function getHappyString(n, k) {
-    const ans = [];
+/**
+ * @param {number} n
+ * @param {number} k
+ * @return {string}
+ */
+const getHappyString = (n, k) => {
+  let len = n
+  let chars = ['a', 'b', 'c']
 
-    const dfs = (s = '') => {
-        if (s.length === n) {
-            ans.push(s);
-            return;
-        }
+  function search(prefix, n, k) {
+    if (!n) {
+      return prefix
+    }
 
-        for (const ch of 'abc') {
-            if (s.at(-1) === ch) continue;
-            dfs(s + ch);
-        }
-    };
+    for (let char of chars) {
+      if (prefix.length && char === prefix[prefix.length - 1]) {
+        continue
+      }
 
-    dfs();
+      let count = 2 ** (len - prefix.length - 1)
 
-    return ans[k - 1] ?? '';
+      if (count >= k) {
+        return search(prefix + char, n - 1, k)
+      } else {
+        k -= count
+      }
+    }
+
+    return ''
+  }
+
+  return search('', n, k)
 }

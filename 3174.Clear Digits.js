@@ -1,11 +1,17 @@
-function clearDigits(s: string): string {
-    const stk: string[] = [];
-    for (const c of s) {
-        if (!isNaN(parseInt(c))) {
-            stk.pop();
-        } else {
-            stk.push(c);
-        }
+/**
+ * @param {string} s
+ * @return {string}
+ */
+const clearDigits = (s) => {
+  let stack = ''
+
+  for (const element of s) {
+    const char = element
+    if (Number.isNaN(Number(char))) {
+      stack += char
+    } else {
+      stack = stack.slice(0, -1)
     }
-    return stk.join('');
+  }
+  return stack
 }

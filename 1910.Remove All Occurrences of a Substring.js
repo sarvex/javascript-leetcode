@@ -1,6 +1,11 @@
-function removeOccurrences(s: string, part: string): string {
-    while (s.includes(part)) {
-        s = s.replace(part, '');
-    }
-    return s;
+/**
+ * @param {string} s
+ * @param {string} part
+ * @return {string}
+ */
+const removeOccurrences = (s, part) => {
+  while (s.includes(part)) {
+    s = s.replace(part, '')
+  }
+  return s
 }

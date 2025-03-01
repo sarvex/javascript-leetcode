@@ -1,12 +1,26 @@
-function longestMonotonicSubarray(nums) {
-    const n = nums.length;
-    let ans = 1;
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+const longestMonotonicSubarray = (nums) => {
+  let decrease = 1
+  let increase = 1
 
-    for (let i = 1, t1 = 1, t2 = 1; i < n; i++) {
-        t1 = nums[i] > nums[i - 1] ? t1 + 1 : 1;
-        t2 = nums[i] < nums[i - 1] ? t2 + 1 : 1;
-        ans = Math.max(ans, t1, t2);
+  let max = 1
+
+  for (let i = 1; i < nums.length; ++i) {
+    if (nums[i] < nums[i - 1]) {
+      ++decrease
+      increase = 1
+    } else if (nums[i] > nums[i - 1]) {
+      ++increase
+      decrease = 1
+    } else {
+      decrease = 1
+      increase = 1
     }
+    max = Math.max(max, increase, decrease)
+  }
 
-    return ans;
+  return max
 }

@@ -1,18 +1,28 @@
 class ProductOfNumbers {
-    s = [1];
+  constructor() {
+    this.prefix = [1] // Stores prefix products, initialized with 1.
+  }
 
-    add(num) {
-        if (num === 0) {
-            this.s = [1];
-        } else {
-            const i = this.s.length;
-            this.s[i] = this.s[i - 1] * num;
-        }
+  /**
+   * @param {number} num
+   * @return {void}
+   */
+  add(num) {
+    if (num === 0) {
+      this.prefix = [1] // Reset if zero is added.
+    } else {
+      this.prefix.push(this.prefix[this.prefix.length - 1] * num)
     }
+  }
 
-    getProduct(k) {
-        const i = this.s.length;
-        if (k > i - 1) return 0;
-        return this.s[i - 1] / this.s[i - k - 1];
+  /**
+   * @param {number} k
+   * @return {number}
+   */
+  getProduct(k) {
+    if (k >= this.prefix.length) {
+      return 0 // If `k` exceeds the last reset, return 0.
     }
+    return this.prefix[this.prefix.length - 1] / this.prefix[this.prefix.length - 1 - k]
+  }
 }

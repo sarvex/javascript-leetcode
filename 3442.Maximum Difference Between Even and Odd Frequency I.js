@@ -2,7 +2,7 @@
  * @param {string} s
  * @return {number}
  */
-var maxDifference = function (s) {
+const maxDifference = (s) => {
   const ASCII = 97
   const ALPHABET = 26
 

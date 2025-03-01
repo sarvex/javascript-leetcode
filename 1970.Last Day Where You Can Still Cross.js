@@ -1,59 +1,117 @@
+/**
+ * Union-Find (Disjoint Set) data structure for efficient
+ * tracking of connected components.
+ */
 class UnionFind {
-    p: number[];
-    size: number[];
-    constructor(n: number) {
-        this.p = Array(n)
-            .fill(0)
-            .map((_, i) => i);
-        this.size = Array(n).fill(1);
+  /**
+   * Creates a new Union-Find data structure with n elements.
+   * @param {number} n - Number of elements
+   */
+  constructor(n) {
+    // Initialize parent array where each element points to itself
+    this.parent = Array(n)
+      .fill(0)
+      .map((_, i) => i)
+    // Track size of each component for union by size optimization
+    this.size = Array(n).fill(1)
+  }
+
+  /**
+   * Finds the representative element of the set containing x
+   * with path compression optimization.
+   * @param {number} x - Element to find representative for
+   * @return {number} Representative element
+   */
+  find(x) {
+    if (this.parent[x] !== x) {
+      this.parent[x] = this.find(this.parent[x])
+    }
+    return this.parent[x]
+  }
+
+  /**
+   * Merges the sets containing elements a and b.
+   * Uses union by size optimization.
+   * @param {number} a - First element
+   * @param {number} b - Second element
+   * @return {boolean} True if sets were merged, false if already in same set
+   */
+  union(a, b) {
+    const [parentA, parentB] = [this.find(a), this.find(b)]
+
+    // Return false if elements are already in the same set
+    if (parentA === parentB) {
+      return false
     }
 
-    find(x: number): number {
-        if (this.p[x] !== x) {
-            this.p[x] = this.find(this.p[x]);
-        }
-        return this.p[x];
+    // Union by size: Attach smaller tree to root of larger tree
+    if (this.size[parentA] > this.size[parentB]) {
+      this.parent[parentB] = parentA
+      this.size[parentA] += this.size[parentB]
+    } else {
+      this.parent[parentA] = parentB
+      this.size[parentB] += this.size[parentA]
     }
 
-    union(a: number, b: number): boolean {
-        const [pa, pb] = [this.find(a), this.find(b)];
-        if (pa === pb) {
-            return false;
-        }
-        if (this.size[pa] > this.size[pb]) {
-            this.p[pb] = pa;
-            this.size[pa] += this.size[pb];
-        } else {
-            this.p[pa] = pb;
-            this.size[pb] += this.size[pa];
-        }
-        return true;
-    }
+    return true
+  }
 }
 
-function latestDayToCross(row: number, col: number, cells: number[][]): number {
-    const mn = cells.length;
-    const uf = new UnionFind(row * col + 2);
-    const [s, t] = [mn, mn + 1];
-    const g: number[][] = Array.from({ length: row }, () => Array(col).fill(1));
-    const dirs: number[] = [-1, 0, 1, 0, -1];
-    for (let i = mn - 1; ; --i) {
-        const [x, y] = [cells[i][0] - 1, cells[i][1] - 1];
-        g[x][y] = 0;
-        for (let j = 0; j < 4; ++j) {
-            const [nx, ny] = [x + dirs[j], y + dirs[j + 1]];
-            if (nx >= 0 && nx < row && ny >= 0 && ny < col && g[nx][ny] === 0) {
-                uf.union(x * col + y, nx * col + ny);
-            }
-        }
-        if (x === 0) {
-            uf.union(s, y);
-        }
-        if (x === row - 1) {
-            uf.union(t, x * col + y);
-        }
-        if (uf.find(s) === uf.find(t)) {
-            return i;
-        }
+/**
+ * Determines the latest day where you can still cross from top to bottom row.
+ * Uses a reverse approach with Union-Find data structure.
+ *
+ * @param {number} row - Number of rows in the grid
+ * @param {number} col - Number of columns in the grid
+ * @param {number[][]} cells - Cells that become water in order
+ * @return {number} The latest day on which you can walk from top to bottom
+ */
+const latestDayToCross = (row, col, cells) => {
+  const totalCells = cells.length
+
+  // Create Union-Find with 2 extra nodes for virtual source and sink
+  const unionFind = new UnionFind(row * col + 2)
+  const source = totalCells
+  const sink = totalCells + 1
+
+  // Initialize grid with all cells as water (1)
+  const grid = Array.from({ length: row }, () => Array(col).fill(1))
+
+  // Direction vectors for 4-directional movement: up, right, down, left
+  const directions = [-1, 0, 1, 0, -1]
+
+  // Work backwards from the last day
+  for (let day = totalCells - 1; ; --day) {
+    // Convert cell coordinates (1-indexed) to 0-indexed
+    const [x, y] = [cells[day][0] - 1, cells[day][1] - 1]
+
+    // Change cell from water to land
+    grid[x][y] = 0
+
+    // Check all four adjacent cells
+    for (let i = 0; i < 4; ++i) {
+      const newX = x + directions[i]
+      const newY = y + directions[i + 1]
+
+      // Connect to adjacent land cells
+      if (newX >= 0 && newX < row && newY >= 0 && newY < col && grid[newX][newY] === 0) {
+        unionFind.union(x * col + y, newX * col + newY)
+      }
     }
+
+    // Connect top row cells to virtual source
+    if (x === 0) {
+      unionFind.union(source, y)
+    }
+
+    // Connect bottom row cells to virtual sink
+    if (x === row - 1) {
+      unionFind.union(sink, x * col + y)
+    }
+
+    // If source and sink are connected, a path exists
+    if (unionFind.find(source) === unionFind.find(sink)) {
+      return day
+    }
+  }
 }
