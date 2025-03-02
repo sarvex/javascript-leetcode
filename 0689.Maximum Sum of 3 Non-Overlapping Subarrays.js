@@ -1,48 +1,83 @@
-function maxSumOfThreeSubarrays(nums: number[], k: number): number[] {
-    const n: number = nums.length;
-    const s: number[] = Array(n + 1).fill(0);
+/**
+ * Finds three non-overlapping subarrays of size k with the maximum sum.
+ *
+ * @param {number[]} nums - The input array of integers
+ * @param {number} k - The size of each subarray
+ * @return {number[]} - The starting indices of the three subarrays with maximum sum
+ * 
+ * @description
+ * This solution uses a sliding window approach with dynamic programming:
+ * 1. Maintain three sliding windows of size k
+ * 2. Track the best single, double, and triple subarray configurations
+ * 3. For each position, update the best configurations if better sums are found
+ * 
+ * Time Complexity: O(n) where n is the length of nums
+ * Space Complexity: O(1) as we only use a constant amount of extra space
+ */
+const maxSumOfThreeSubarrays = (nums, k) => {
+  // Initialize best indices for optimal subarray configurations
+  let bestSingleIndex = 0;
+  let bestDoubleIndices = [0, k];
+  let bestTripleIndices = [0, k, k * 2];
 
-    for (let i = 0; i < n; ++i) {
-        s[i + 1] = s[i] + nums[i];
+  // Initialize sums for the first window positions
+  let singleWindowSum = 0;
+  let doubleWindowSum = 0;
+  let tripleWindowSum = 0;
+
+  // Calculate initial sums for each window
+  for (let i = 0; i < k; i++) {
+    singleWindowSum += nums[i];
+  }
+  for (let i = k; i < k * 2; i++) {
+    doubleWindowSum += nums[i];
+  }
+  for (let i = k * 2; i < k * 3; i++) {
+    tripleWindowSum += nums[i];
+  }
+
+  // Track best sums found so far
+  let bestSingleSum = singleWindowSum;
+  let bestDoubleSum = singleWindowSum + doubleWindowSum;
+  let bestTripleSum = singleWindowSum + doubleWindowSum + tripleWindowSum;
+
+  // Initialize sliding window pointers
+  let singleStart = 1;
+  let doubleStart = k + 1;
+  let tripleStart = k * 2 + 1;
+
+  // Slide all windows through the array simultaneously
+  while (tripleStart <= nums.length - k) {
+    // Update window sums by adding new element and removing oldest element
+    singleWindowSum = singleWindowSum + nums[singleStart + k - 1] - nums[singleStart - 1];
+    doubleWindowSum = doubleWindowSum + nums[doubleStart + k - 1] - nums[doubleStart - 1];
+    tripleWindowSum = tripleWindowSum + nums[tripleStart + k - 1] - nums[tripleStart - 1];
+
+    // Update best single window if current is better
+    if (singleWindowSum > bestSingleSum) {
+      bestSingleIndex = singleStart;
+      bestSingleSum = singleWindowSum;
     }
 
-    const pre: number[][] = Array(n)
-        .fill([])
-        .map(() => new Array(2).fill(0));
-    const suf: number[][] = Array(n)
-        .fill([])
-        .map(() => new Array(2).fill(0));
-
-    for (let i = 0, t = 0, idx = 0; i < n - k + 1; ++i) {
-        const cur: number = s[i + k] - s[i];
-        if (cur > t) {
-            pre[i + k - 1] = [cur, i];
-            t = cur;
-            idx = i;
-        } else {
-            pre[i + k - 1] = [t, idx];
-        }
+    // Update best double window if current combination is better
+    const currentDoubleSum = bestSingleSum + doubleWindowSum;
+    if (currentDoubleSum > bestDoubleSum) {
+      bestDoubleIndices = [bestSingleIndex, doubleStart];
+      bestDoubleSum = currentDoubleSum;
     }
 
-    for (let i = n - k, t = 0, idx = 0; i >= 0; --i) {
-        const cur: number = s[i + k] - s[i];
-        if (cur >= t) {
-            suf[i] = [cur, i];
-            t = cur;
-            idx = i;
-        } else {
-            suf[i] = [t, idx];
-        }
+    // Update best triple window if current combination is better
+    const currentTripleSum = bestDoubleSum + tripleWindowSum;
+    if (currentTripleSum > bestTripleSum) {
+      bestTripleIndices = [bestDoubleIndices[0], bestDoubleIndices[1], tripleStart];
+      bestTripleSum = currentTripleSum;
     }
 
-    let ans: number[] = [];
-    for (let i = k, t = 0; i < n - 2 * k + 1; ++i) {
-        const cur: number = s[i + k] - s[i] + pre[i - 1][0] + suf[i + k][0];
-        if (cur > t) {
-            ans = [pre[i - 1][1], i, suf[i + k][1]];
-            t = cur;
-        }
-    }
+    // Advance all window pointers
+    singleStart++;
+    doubleStart++;
+    tripleStart++;
+  }
 
-    return ans;
-}
+  return bestTripleIndices;
+};

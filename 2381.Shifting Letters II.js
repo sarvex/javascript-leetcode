@@ -1,24 +1,28 @@
-function shiftingLetters(s: string, shifts: number[][]): string {
-    const n: number = s.length;
-    const d: number[] = new Array(n + 1).fill(0);
+/**
+ * @param {string} s
+ * @param {number[][]} shifts
+ * @return {string}
+ */
+function shiftingLetters(s, shifts) {
+  const ALPHABET = 26
+  const ASCII = 97
+  const deltas = new Int32Array(s.length + 1)
 
-    for (let [i, j, v] of shifts) {
-        if (v === 0) {
-            v--;
-        }
-        d[i] += v;
-        d[j + 1] -= v;
-    }
+  for (const element of shifts) {
+    const direction = (element[2] << 1) - 1
+    deltas[element[0]] += direction
+    deltas[element[1] + 1] -= direction
+  }
 
-    for (let i = 1; i <= n; ++i) {
-        d[i] += d[i - 1];
-    }
+  let prefixSum = 0
+  const chars = s.split('')
+  for (let i = 0; i < s.length; ++i) {
+    prefixSum += deltas[i]
+    let code = chars[i].charCodeAt(0) - ASCII
+    code = (code + prefixSum) % ALPHABET
+    code = (code + ALPHABET) % ALPHABET
+    chars[i] = String.fromCharCode(code + ASCII)
+  }
 
-    let ans: string = '';
-    for (let i = 0; i < n; ++i) {
-        const j = (s.charCodeAt(i) - 'a'.charCodeAt(0) + (d[i] % 26) + 26) % 26;
-        ans += String.fromCharCode('a'.charCodeAt(0) + j);
-    }
-
-    return ans;
+  return chars.join('')
 }

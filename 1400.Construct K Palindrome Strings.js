@@ -1,14 +1,13 @@
-function canConstruct(s: string, k: number): boolean {
-    if (s.length < k) {
-        return false;
-    }
-    const cnt: number[] = new Array(26).fill(0);
-    for (const c of s) {
-        ++cnt[c.charCodeAt(0) - 'a'.charCodeAt(0)];
-    }
-    let x = 0;
-    for (const v of cnt) {
-        x += v & 1;
-    }
-    return x <= k;
+/**
+ * @param {string} s
+ * @param {number} k
+ * @return {boolean}
+ */
+const canConstruct = function (s, k) {
+  if (s.length < k) return false
+  let oddChars = new Array(26).fill(0)
+  for (let i = 0; i < s.length; i++) {
+    oddChars[s.charCodeAt(i) - 'a'.charCodeAt(0)] ^= 1
+  }
+  return oddChars.reduce((acc, count) => acc + count, 0) <= k
 }

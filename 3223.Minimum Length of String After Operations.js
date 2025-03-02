@@ -1,11 +1,22 @@
-function minimumLength(s: string): number {
-    const cnt = new Map<string, number>();
-    for (const c of s) {
-        cnt.set(c, (cnt.get(c) || 0) + 1);
+/**
+ * @param {string} s
+ * @return {number}
+ */
+const minimumLength = (s) => {
+  const ALPHABET = 26
+  const ASCII = 97
+
+  const frequencies = new Uint32Array(ALPHABET)
+  for (let i = 0; i < s.length; ++i) {
+    ++frequencies[s.charCodeAt(i) - ASCII]
+  }
+
+  let length = 0
+  for (let i = 0; i < ALPHABET; ++i) {
+    if (frequencies[i] > 0) {
+      length += 2 - (frequencies[i] & 1)
     }
-    let ans = 0;
-    for (const x of cnt.values()) {
-        ans += x & 1 ? 1 : 2;
-    }
-    return ans;
+  }
+
+  return length
 }

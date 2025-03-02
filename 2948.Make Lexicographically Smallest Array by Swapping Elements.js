@@ -1,18 +1,23 @@
-function lexicographicallySmallestArray(nums: number[], limit: number): number[] {
-    const n: number = nums.length;
-    const idx: number[] = Array.from({ length: n }, (_, i) => i);
-    idx.sort((i, j) => nums[i] - nums[j]);
-    const ans: number[] = Array(n).fill(0);
-    for (let i = 0; i < n; ) {
-        let j = i + 1;
-        while (j < n && nums[idx[j]] - nums[idx[j - 1]] <= limit) {
-            j++;
-        }
-        const t: number[] = idx.slice(i, j).sort((a, b) => a - b);
-        for (let k: number = i; k < j; k++) {
-            ans[t[k - i]] = nums[idx[k]];
-        }
-        i = j;
+/**
+ * @param {number[]} nums
+ * @param {number} limit
+ * @return {number[]}
+ */
+const lexicographicallySmallestArray = (nums, limit) => {
+  const n = nums.length
+  const index = Array.from({ length: n }, (_, i) => i)
+  index.sort((i, j) => nums[i] - nums[j])
+  const result = Array(n).fill(0)
+  for (let i = 0; i < n; ) {
+    let j = i + 1
+    while (j < n && nums[index[j]] - nums[index[j - 1]] <= limit) {
+      j++
     }
-    return ans;
+    const t = index.slice(i, j).sort((a, b) => a - b)
+    for (let k = i; k < j; k++) {
+      result[t[k - i]] = nums[index[k]]
+    }
+    i = j
+  }
+  return result
 }

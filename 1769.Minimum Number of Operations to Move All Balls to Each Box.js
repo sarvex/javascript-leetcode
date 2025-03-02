@@ -1,19 +1,26 @@
-function minOperations(boxes) {
-    const n = boxes.length;
-    const ans = Array(n).fill(0);
-    const ones = [];
+/**
+ * @param {string} boxes
+ * @return {number[]}
+ */
+const minOperations = (boxes) => {
+  const arr = Array(boxes.length).fill(0)
 
-    for (let i = 0; i < n; i++) {
-        if (+boxes[i]) {
-            ones.push(i);
-        }
-    }
+  let balls = 0,
+    moves = 0
 
-    for (let i = 0; i < n; i++) {
-        for (const j of ones) {
-            ans[i] += Math.abs(i - j);
-        }
-    }
+  for (let i = 0; i < boxes.length; i++) {
+    arr[i] += moves
+    if (boxes[i] === '1') balls += 1
+    moves += balls
+  }
 
-    return ans;
+  balls = 0
+  moves = 0
+
+  for (let i = boxes.length - 1; i >= 0; i--) {
+    arr[i] += moves
+    if (boxes[i] === '1') balls += 1
+    moves += balls
+  }
+  return arr
 }

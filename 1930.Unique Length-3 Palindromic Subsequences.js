@@ -2,21 +2,25 @@
  * @param {string} s
  * @return {number}
  */
-var countPalindromicSubsequence = function (s) {
-    let ans = 0;
-    const a = 'a'.charCodeAt(0);
-    for (let ch = 0; ch < 26; ++ch) {
-        const c = String.fromCharCode(ch + a);
-        const l = s.indexOf(c);
-        const r = s.lastIndexOf(c);
-        let mask = 0;
-        for (let i = l + 1; i < r; ++i) {
-            const j = s.charCodeAt(i) - a;
-            if (((mask >> j) & 1) ^ 1) {
-                mask |= 1 << j;
-                ++ans;
-            }
-        }
+const countPalindromicSubsequence = (s) => {
+  const ALPHABET = 26
+  const ASCII = 97
+  let result = 0
+  const chars = Array.from({ length: 26 }, (v, i) => String.fromCharCode(97 + i))
+  for (const c1 of chars) {
+    const fi = s.indexOf(c1)
+    if (fi === -1) {
+      continue
     }
-    return ans;
-};
+    for (const c2 of chars) {
+      const si = s.indexOf(c2, fi + 1)
+      if (si === -1) {
+        continue
+      }
+      if (s.indexOf(c1, si + 1) > -1) {
+        result++
+      }
+    }
+  }
+  return result
+}

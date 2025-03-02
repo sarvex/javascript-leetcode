@@ -1,13 +1,16 @@
-function stringMatching(words: string[]): string[] {
-    const ans: string[] = [];
-    const n = words.length;
-    for (let i = 0; i < n; ++i) {
-        for (let j = 0; j < n; ++j) {
-            if (words[j].includes(words[i]) && i !== j) {
-                ans.push(words[i]);
-                break;
-            }
-        }
+/**
+ * @param {string[]} words
+ * @return {string[]}
+ */
+const stringMatching = (words) => {
+  let result = new Set()
+
+  for (let i = 0; i < words.length; i++) {
+    for (let j = 0; j < words.length; j++) {
+      if (i !== j && words[i].includes(words[j])) {
+        result.add(words[j])
+      }
     }
-    return ans;
+  }
+  return Array.from(result)
 }

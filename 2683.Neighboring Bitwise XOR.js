@@ -1,3 +1,11 @@
-function doesValidArrayExist(derived: number[]): boolean {
-    return derived.reduce((acc, x) => acc ^ x) === 0;
+/**
+ * @param {number[]} derived
+ * @return {boolean}
+ */
+const doesValidArrayExist = (derived) => {
+  let xor = 0
+  for (const num of derived) {
+    xor ^= num
+  }
+  return xor == 0
 }
