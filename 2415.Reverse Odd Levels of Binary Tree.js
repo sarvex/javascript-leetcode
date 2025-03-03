@@ -1,33 +1,26 @@
 /**
- * Definition for a binary tree node.
- * class TreeNode {
- *     val: number
- *     left: TreeNode | null
- *     right: TreeNode | null
- *     constructor(val?: number, left?: TreeNode | null, right?: TreeNode | null) {
- *         this.val = (val===undefined ? 0 : val)
- *         this.left = (left===undefined ? null : left)
- *         this.right = (right===undefined ? null : right)
- *     }
- * }
+ * Reverses the values of nodes at odd levels in a binary tree
+ *
+ * @param {TreeNode} root - The root node of the binary tree
+ * @return {TreeNode} - The root node of the modified binary tree
+ *
+ * Approach: Recursive traversal swapping symmetric node values at odd levels
+ * Time Complexity: O(n) where n is the number of nodes in the tree
+ * Space Complexity: O(h) where h is the height of the tree (recursion stack)
  */
+const reverseOddLevels = (root) => {
+  const swapSymmetricNodes = (leftNode, rightNode, level) => {
+    if (!leftNode || !rightNode) return
 
-function reverseOddLevels(root: TreeNode | null): TreeNode | null {
-    const q: TreeNode[] = [root];
-    for (let i = 0; q.length > 0; ++i) {
-        if (i % 2) {
-            for (let l = 0, r = q.length - 1; l < r; ++l, --r) {
-                [q[l].val, q[r].val] = [q[r].val, q[l].val];
-            }
-        }
-        const nq: TreeNode[] = [];
-        for (const { left, right } of q) {
-            if (left) {
-                nq.push(left);
-                nq.push(right);
-            }
-        }
-        q.splice(0, q.length, ...nq);
+    if (level % 2 === 0) {
+      ;[leftNode.val, rightNode.val] = [rightNode.val, leftNode.val]
     }
-    return root;
+
+    swapSymmetricNodes(leftNode.left, rightNode.right, level + 1)
+    swapSymmetricNodes(leftNode.right, rightNode.left, level + 1)
+  }
+
+  if (!root) return root
+  swapSymmetricNodes(root.left, root.right, 0)
+  return root
 }

@@ -1,15 +1,18 @@
-function maximumBeauty(nums: number[], k: number): number {
-    const m = Math.max(...nums) + k * 2 + 2;
-    const d: number[] = Array(m).fill(0);
-    for (const x of nums) {
-        d[x]++;
-        d[x + k * 2 + 1]--;
-    }
-    let ans = 0;
-    let s = 0;
-    for (const x of d) {
-        s += x;
-        ans = Math.max(ans, s);
-    }
-    return ans;
+const maximumBeauty = (nums, k) => {
+  const maxNum = Math.max(...nums)
+  const diffArraySize = maxNum + 2 * k + 2
+  const diff = Array(diffArraySize).fill(0)
+
+  for (const num of nums) {
+    diff[num]++
+    diff[num + 2 * k + 1]--
+  }
+
+  let curr = 0,
+    best = 0
+  for (const delta of diff) {
+    curr += delta
+    best = Math.max(best, curr)
+  }
+  return best
 }

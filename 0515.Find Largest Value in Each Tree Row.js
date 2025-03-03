@@ -12,21 +12,25 @@
  * }
  */
 
-function largestValues(root: TreeNode | null): number[] {
-    const res = [];
-    const dfs = (root: TreeNode | null, depth: number) => {
-        if (root == null) {
-            return;
-        }
-        const { val, left, right } = root;
-        if (res.length == depth) {
-            res.push(val);
-        } else {
-            res[depth] = Math.max(res[depth], val);
-        }
-        dfs(left, depth + 1);
-        dfs(right, depth + 1);
-    };
-    dfs(root, 0);
-    return res;
+/**
+ * @param {TreeNode} root
+ * @return {number[]}
+ */
+const largestValues = (root) => {
+  const result = []
+  const search = (root, depth) => {
+    if (root == null) {
+      return
+    }
+    const { val, left, right } = root
+    if (result.length == depth) {
+      result.push(val)
+    } else {
+      result[depth] = Math.max(result[depth], val)
+    }
+    search(left, depth + 1)
+    search(right, depth + 1)
+  }
+  search(root, 0)
+  return result
 }

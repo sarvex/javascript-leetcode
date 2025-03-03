@@ -1,27 +1,35 @@
-function continuousSubarrays(nums) {
-    const [minQ, maxQ] = [[], []];
-    const n = nums.length;
-    let res = 0;
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+const continuousSubarrays = (nums) => {
+  let [left, result] = [0, 0]
+  let minDeque = []
+  let maxDeque = []
 
-    for (let r = 0, l = 0; r < n; r++) {
-        const x = nums[r];
-        while (minQ.length && nums[minQ.at(-1)] > x) minQ.pop();
-        while (maxQ.length && nums[maxQ.at(-1)] < x) maxQ.pop();
-        minQ.push(r);
-        maxQ.push(r);
+  for (let right = 0; right < nums.length; right++) {
+    // Maintain maxDeque (Monotonic decreasing)
+    while (maxDeque.length && nums[maxDeque[maxDeque.length - 1]] <= nums[right]) {
+      maxDeque.pop()
+    }
+    maxDeque.push(right)
 
-        while (minQ.length && maxQ.length && nums[maxQ[0]] - nums[minQ[0]] > 2) {
-            if (maxQ[0] < minQ[0]) {
-                l = maxQ[0] + 1;
-                maxQ.shift();
-            } else {
-                l = minQ[0] + 1;
-                minQ.shift();
-            }
-        }
+    // Maintain minDeque (Monotonic increasing)
+    while (minDeque.length && nums[minDeque[minDeque.length - 1]] >= nums[right]) {
+      minDeque.pop()
+    }
+    minDeque.push(right)
 
-        res += r - l + 1;
+    // If the current window is invalid, move left pointer
+    while (nums[maxDeque[0]] - nums[minDeque[0]] > 2) {
+      if (maxDeque[0] === left) maxDeque.shift()
+      if (minDeque[0] === left) minDeque.shift()
+      left++
     }
 
-    return res;
+    // Count valid subarrays
+    result += right - left + 1
+  }
+
+  return result
 }

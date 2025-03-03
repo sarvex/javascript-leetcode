@@ -1,27 +1,39 @@
-function minSizeSubarray(nums: number[], target: number): number {
-    const s = nums.reduce((a, b) => a + b);
-    const n = nums.length;
-    let a = 0;
-    if (target > s) {
-        a = n * ((target / s) | 0);
-        target -= ((target / s) | 0) * s;
+/**
+ * Finds the minimal length subarray in an infinite array with sum >= target
+ * The infinite array is defined as nums concatenated with itself infinitely
+ *
+ * @param {number[]} nums - Array of positive integers
+ * @param {number} target - Target sum to reach
+ * @return {number} - Minimal subarray length or -1 if none exists
+ */
+const minSizeSubarray = (nums, target) => {
+  const arrayLength = nums.length;
+  const totalSum = nums.reduce((sum, num) => sum + num, 0);
+  
+  // Handle complete cycles case
+  if (target % totalSum === 0) {
+    return (target / totalSum) * arrayLength;
+  }
+  
+  const completeCycles = Math.floor(target / totalSum);
+  const remainingTarget = target % totalSum;
+  
+  // Use sliding window for finding minimum subarray with sum = remainingTarget
+  let minLength = Infinity;
+  let currentSum = 0;
+  
+  for (let right = 0, left = 0; right < 2 * arrayLength; right++) {
+    currentSum += nums[right % arrayLength];
+    
+    while (left <= right && currentSum > remainingTarget) {
+      currentSum -= nums[left % arrayLength];
+      left++;
     }
-    if (target === s) {
-        return n;
+    
+    if (currentSum === remainingTarget) {
+      minLength = Math.min(minLength, right - left + 1);
     }
-    const pos: Map<number, number> = new Map();
-    let pre = 0;
-    pos.set(0, -1);
-    let b = Infinity;
-    for (let i = 0; i < n; ++i) {
-        pre += nums[i];
-        if (pos.has(pre - target)) {
-            b = Math.min(b, i - pos.get(pre - target)!);
-        }
-        if (pos.has(pre - (s - target))) {
-            b = Math.min(b, n - (i - pos.get(pre - (s - target))!));
-        }
-        pos.set(pre, i);
-    }
-    return b === Infinity ? -1 : a + b;
-}
+  }
+  
+  return minLength === Infinity ? -1 : completeCycles * arrayLength + minLength;
+};

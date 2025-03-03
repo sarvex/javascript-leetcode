@@ -38,28 +38,26 @@
  */
 
 class NestedIterator {
-    private nums: number[] = [];
-    private i = -1;
-    constructor(nestedList: NestedInteger[]) {
-        const dfs = (ls: NestedInteger[]) => {
-            for (const x of ls) {
-                if (x.isInteger()) {
-                    this.nums.push(x.getInteger());
-                } else {
-                    dfs(x.getList());
-                }
-            }
-        };
-        dfs(nestedList);
-    }
+	constructor(nestedList) {
+		const dfs = (ls) => {
+			for (const x of ls) {
+				if (x.isInteger()) {
+					this.nums.push(x.getInteger());
+				} else {
+					dfs(x.getList());
+				}
+			}
+		};
+		dfs(nestedList);
+	}
 
-    hasNext(): boolean {
-        return this.i + 1 < this.nums.length;
-    }
+	hasNext() {
+		return this.i + 1 < this.nums.length;
+	}
 
-    next(): number {
-        return this.nums[++this.i];
-    }
+	next() {
+		return this.nums[++this.i];
+	}
 }
 
 /**

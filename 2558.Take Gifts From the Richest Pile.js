@@ -1,14 +1,17 @@
-function pickGifts(gifts: number[], k: number): number {
-    const pq = new MaxPriorityQueue();
-    gifts.forEach(v => pq.enqueue(v));
-    while (k--) {
-        let v = pq.dequeue().element;
-        v = Math.floor(Math.sqrt(v));
-        pq.enqueue(v);
+/**
+ * Replaces the largest gift repeatedly with its floored square root.
+ * @param {number[]} gifts - Array of gift counts.
+ * @param {number} k - Number of operations.
+ * @return {number} - Sum of gifts after operations.
+ */
+const pickGifts = (gifts, k) => {
+  const n = gifts.length
+  while (k-- > 0) {
+    let richestIndex = 0
+    for (let i = 0; i < n; i++) {
+      if (gifts[i] > gifts[richestIndex]) richestIndex = i
     }
-    let ans = 0;
-    while (!pq.isEmpty()) {
-        ans += pq.dequeue().element;
-    }
-    return ans;
+    gifts[richestIndex] = Math.floor(Math.sqrt(gifts[richestIndex]))
+  }
+  return gifts.reduce((sum, count) => sum + count, 0)
 }
