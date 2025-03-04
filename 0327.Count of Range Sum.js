@@ -34,6 +34,7 @@ const countRangeSum = (nums, lower, upper) => {
 		}
 		return l + 1;
 	};
+
 	const n = nums.length;
 	const s = Array(n + 1).fill(0);
 	for (let i = 0; i < n; ++i) {

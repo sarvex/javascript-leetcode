@@ -1,29 +1,72 @@
-function minimumTime(grid) {
-    if (grid[0][1] > 1 && grid[1][0] > 1) return -1;
+/**
+ * Computes the minimum time required to reach the bottom-right cell in the grid.
+ * Returns -1 if the target cell is unreachable.
+ *
+ * @param {number[][]} grid
+ * @return {number}
+ */
+const minimumTime = (grid) => {
+  // Check initial conditions: early exit if first move is not feasible.
+  if (Math.min(grid[0][1], grid[1][0]) > 1) {
+    return -1
+  }
 
-    const [m, n] = [grid.length, grid[0].length];
-    const DIRS = [-1, 0, 1, 0, -1];
-    const q = new MinPriorityQueue({ priority: ([x]) => x });
-    const dist = Array.from({ length: m }, () => new Array(n).fill(Number.POSITIVE_INFINITY));
-    dist[0][0] = 0;
-    q.enqueue([0, 0, 0]);
+  // Grid dimensions.
+  const numRows = grid.length
+  const numCols = grid[0].length
 
-    while (true) {
-        const [t, i, j] = q.dequeue().element;
-        if (i === m - 1 && j === n - 1) return t;
+  // Min-priority queue to store elements as [time, row, column].
+  const priorityQueue = new MinPriorityQueue((node) => node[0])
+  priorityQueue.enqueue([0, 0, 0])
 
-        for (let k = 0; k < 4; k++) {
-            const [x, y] = [i + DIRS[k], j + DIRS[k + 1]];
-            if (x < 0 || x >= m || y < 0 || y >= n) continue;
+  // Set to track visited positions ("row,col").
+  const visitedCells = new Set()
 
-            let nt = t + 1;
-            if (nt < grid[x][y]) {
-                nt = grid[x][y] + ((grid[x][y] - nt) % 2);
-            }
-            if (nt < dist[x][y]) {
-                dist[x][y] = nt;
-                q.enqueue([nt, x, y]);
-            }
-        }
+  // Four possible movement directions: down, up, right, left.
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  // Process cells ordered by earliest time.
+  while (!priorityQueue.isEmpty()) {
+    const [currentTime, currentRow, currentCol] = priorityQueue.dequeue()
+
+    // Check if the target cell is reached.
+    if (currentRow === numRows - 1 && currentCol === numCols - 1) {
+      return currentTime
     }
+
+    // Explore neighboring cells.
+    for (const [rowOffset, colOffset] of directions) {
+      const newRow = currentRow + rowOffset
+      const newCol = currentCol + colOffset
+      const cellKey = `${newRow},${newCol}`
+
+      // Validate the new cell position.
+      if (
+        newRow < 0 ||
+        newCol < 0 ||
+        newRow >= numRows ||
+        newCol >= numCols ||
+        visitedCells.has(cellKey)
+      ) {
+        continue
+      }
+
+      // Calculate wait time based on parity; ensures proper timing.
+      const parityWait = Math.abs(grid[newRow][newCol] - currentTime) % 2 === 0 ? 1 : 0
+      // Determine the earliest possible time to visit the new cell.
+      const newTime = Math.max(grid[newRow][newCol] + parityWait, currentTime + 1)
+
+      // Enqueue the new cell and mark as visited.
+      priorityQueue.enqueue([newTime, newRow, newCol], newTime)
+      visitedCells.add(cellKey)
+    }
+  }
+
+  // If the queue is exhausted, the target is unreachable.
+  return -1
 }

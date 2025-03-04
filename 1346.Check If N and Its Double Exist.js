@@ -1,10 +1,16 @@
-function checkIfExist(arr: number[]): boolean {
-    const s: Set<number> = new Set();
-    for (const x of arr) {
-        if (s.has(x * 2) || (x % 2 === 0 && s.has((x / 2) | 0))) {
-            return true;
-        }
-        s.add(x);
+/**
+ * Checks if the array contains an element and its double.
+ *
+ * @param {number[]} numbers - The numbers to check.
+ * @return {boolean} - True if such a pair exists, false otherwise.
+ */
+const checkIfExist = (numbers) => {
+  const observedNumbers = new Set()
+  for (const num of numbers) {
+    if (observedNumbers.has(num * 2) || (num % 2 === 0 && observedNumbers.has(num / 2))) {
+      return true
     }
-    return false;
+    observedNumbers.add(num)
+  }
+  return false
 }

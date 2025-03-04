@@ -1,23 +1,35 @@
-function canChange(start: string, target: string): boolean {
-    const n = start.length;
-    let [i, j] = [0, 0];
-    while (1) {
-        while (i < n && start[i] === '_') {
-            ++i;
-        }
-        while (j < n && target[j] === '_') {
-            ++j;
-        }
-        if (i === n && j === n) {
-            return true;
-        }
-        if (i === n || j === n || start[i] !== target[j]) {
-            return false;
-        }
-        if ((start[i] === 'L' && i < j) || (start[i] === 'R' && i > j)) {
-            return false;
-        }
-        ++i;
-        ++j;
-    }
+/**
+ * Determines if the start string can be transformed into the target string
+ * following specific movement rules.
+ *
+ * @param {string} start - Initial configuration with 'L', 'R', and '_' placeholders.
+ * @param {string} target - Desired configuration.
+ * @returns {boolean} - True if the transformation is possible.
+ */
+const canChange = (start, target) => {
+  const length = start.length
+  let indexStart = 0
+  let indexTarget = 0
+
+  while (true) {
+    while (indexStart < length && start[indexStart] === '_') indexStart++
+    while (indexTarget < length && target[indexTarget] === '_') indexTarget++
+
+    if (indexStart === length && indexTarget === length) return true
+    if (
+      indexStart === length ||
+      indexTarget === length ||
+      start[indexStart] !== target[indexTarget]
+    )
+      return false
+
+    if (
+      (start[indexStart] === 'L' && indexStart < indexTarget) ||
+      (start[indexStart] === 'R' && indexStart > indexTarget)
+    )
+      return false
+
+    indexStart++
+    indexTarget++
+  }
 }

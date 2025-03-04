@@ -1,11 +1,16 @@
-function addSpaces(s: string, spaces: number[]): string {
-    const ans: string[] = [];
-    for (let i = 0, j = 0; i < s.length; i++) {
-        if (i === spaces[j]) {
-            ans.push(' ');
-            j++;
-        }
-        ans.push(s[i]);
+/**
+ * @param {string} s
+ * @param {number[]} spaces
+ * @return {string}
+ */
+const addSpaces = (s, spaces) => {
+  const result = []
+  for (let i = 0, j = 0; i < s.length; i++) {
+    if (i === spaces[j]) {
+      result.push(' ')
+      j++
     }
-    return ans.join('');
+    result.push(s[i])
+  }
+  return result.join('')
 }

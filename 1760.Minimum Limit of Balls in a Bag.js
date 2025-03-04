@@ -1,22 +1,32 @@
 /**
- * @param {number[]} nums
- * @param {number} maxOperations
+ * Returns the minimum bag size ensuring that the number of split operations
+ * does not exceed maxAllowedOperations.
+ * @param {number[]} ballCounts
+ * @param {number} maxAllowedOperations
  * @return {number}
  */
-var minimumSize = function (nums, maxOperations) {
-    let left = 1;
-    let right = Math.max(...nums);
-    while (left < right) {
-        const mid = (left + right) >> 1;
-        let cnt = 0;
-        for (const x of nums) {
-            cnt += ~~((x - 1) / mid);
-        }
-        if (cnt <= maxOperations) {
-            right = mid;
-        } else {
-            left = mid + 1;
-        }
+const minimumSize = function (ballCounts, maxAllowedOperations) {
+  let start = 1
+  let end = Math.max(...ballCounts)
+  let ans
+
+  while (start <= end) {
+    const candidateSize = Math.floor((start + end) / 2)
+    if (isValid(candidateSize)) {
+      ans = candidateSize
+      end = candidateSize - 1
+    } else {
+      start = candidateSize + 1
     }
-    return left;
-};
+  }
+  return ans
+
+  // Checks if candidateSize results in operations within maxAllowedOperations.
+  function isValid(candidateSize) {
+    let totalOps = 0
+    for (const element of ballCounts) {
+      totalOps += Math.floor((element - 1) / candidateSize)
+    }
+    return totalOps <= maxAllowedOperations
+  }
+}
