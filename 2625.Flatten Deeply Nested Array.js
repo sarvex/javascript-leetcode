@@ -1,16 +1,23 @@
-type MultiDimensionalArray = (number | MultiDimensionalArray)[];
+/**
+ * @param {Array} arr
+ * @param {number} depth
+ * @return {Array}
+ */
+const flat = (arr, n) => {
+  let result = []
 
-var flat = function (arr: MultiDimensionalArray, n: number): MultiDimensionalArray {
-    if (!n) {
-        return arr;
+  const flatten = (array, size) => {
+    if (!size) return array
+    for (const element of array) {
+      if (Array.isArray(element) && size !== 0) {
+        flatten(element, size - 1)
+      } else {
+        result.push(element)
+      }
     }
-    const ans: MultiDimensionalArray = [];
-    for (const x of arr) {
-        if (Array.isArray(x) && n) {
-            ans.push(...flat(x, n - 1));
-        } else {
-            ans.push(x);
-        }
-    }
-    return ans;
-};
+  }
+
+  flatten(arr, n)
+
+  return result
+}

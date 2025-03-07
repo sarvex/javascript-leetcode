@@ -1,16 +1,14 @@
-type F = (...p: any[]) => any;
+const debounce = (fn, t) => {
+  let timeout
 
-function debounce(fn: F, t: number): F {
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-
-    return function (...args) {
-        if (timeout !== undefined) {
-            clearTimeout(timeout);
-        }
-        timeout = setTimeout(() => {
-            fn.apply(this, args);
-        }, t);
-    };
+  return (...args) => {
+    if (timeout !== undefined) {
+      clearTimeout(timeout)
+    }
+    timeout = setTimeout(() => {
+      fn.apply(this, args)
+    }, t)
+  }
 }
 
 /**

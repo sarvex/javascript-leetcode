@@ -2,9 +2,9 @@
  * @param {Object | Array} obj
  * @return {boolean}
  */
-var isEmpty = function (obj) {
-    for (const x in obj) {
-        return false;
-    }
-    return true;
-};
+const isEmpty = (obj) => {
+  for (const _x in obj) {
+    return false
+  }
+  return true
+}
