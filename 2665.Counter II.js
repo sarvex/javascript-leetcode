@@ -1,22 +1,20 @@
-type ReturnObj = {
-    increment: () => number;
-    decrement: () => number;
-    reset: () => number;
-};
-
-function createCounter(init: number): ReturnObj {
-    let val = init;
-    return {
-        increment() {
-            return ++val;
-        },
-        decrement() {
-            return --val;
-        },
-        reset() {
-            return (val = init);
-        },
-    };
+/**
+ * @param {integer} init
+ * @return { increment: Function, decrement: Function, reset: Function }
+ */
+const createCounter = (init) => {
+  let val = init
+  return {
+    increment() {
+      return ++val
+    },
+    decrement() {
+      return --val
+    },
+    reset() {
+      return (val = init)
+    },
+  }
 }
 
 /**

@@ -1,8 +1,10 @@
-function createCounter(n: number): () => number {
-    let i = n;
-    return function () {
-        return i++;
-    };
+/**
+ * @param {number} n
+ * @return {Function}
+ */
+const createCounter = (n) => {
+  let i = n
+  return () => i++
 }
 
 /**

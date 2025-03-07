@@ -2,15 +2,16 @@
  * @param {Function} fn
  * @return {Function}
  */
-var once = function (fn) {
-    let called = false;
-    return function (...args) {
-        if (!called) {
-            called = true;
-            return fn(...args);
-        }
-    };
-};
+const once = (fn) => {
+  let called = false
+  return (...args) => {
+    if (called) {
+      return undefined
+    }
+    called = true
+    return fn(...args)
+  }
+}
 
 /**
  * let fn = (a,b,c) => (a + b + c)

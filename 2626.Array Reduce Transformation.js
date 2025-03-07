@@ -1,9 +1,13 @@
-type Fn = (accum: number, curr: number) => number;
-
-function reduce(nums: number[], fn: Fn, init: number): number {
-    let acc: number = init;
-    for (const x of nums) {
-        acc = fn(acc, x);
-    }
-    return acc;
+/**
+ * @param {number[]} nums
+ * @param {Function} fn
+ * @param {number} init
+ * @return {number}
+ */
+const reduce = (nums, fn, init) => {
+  let acc = init
+  for (const x of nums) {
+    acc = fn(acc, x)
+  }
+  return acc
 }

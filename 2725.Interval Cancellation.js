@@ -1,7 +1,13 @@
-function cancellable(fn: Function, args: any[], t: number): Function {
-    fn(...args);
-    const time = setInterval(() => fn(...args), t);
-    return () => clearInterval(time);
+/**
+ * @param {Function} fn
+ * @param {Array} args
+ * @param {number} t
+ * @return {Function}
+ */
+const cancellable = (fn, args, t) => {
+  fn(...args)
+  const time = setInterval(() => fn(...args), t)
+  return () => clearInterval(time)
 }
 
 /**
