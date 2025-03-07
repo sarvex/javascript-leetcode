@@ -1,28 +1,44 @@
 /**
+ * Minimum obstacles to remove from top-left to bottom-right using zero-one BFS.
+ *
  * @param {number[][]} grid
- * @return {number}
+ * @returns {number}
  */
 const minimumObstacles = (grid) => {
-  const [m, n] = [grid.length, grid[0].length]
-  const dirs = [
-    [0, 1],
-    [0, -1],
-    [1, 0],
-    [-1, 0],
-  ]
-  const ans = Array.from({ length: m }, (v) => new Array(n).fill(Infinity))
-  ans[0][0] = 0
-  const deque = [[0, 0]]
-  while (deque.length) {
-    const [x, y] = deque.shift()
-    for (const [dx, dy] of dirs) {
-      const [i, j] = [x + dx, y + dy]
-      if (i < 0 || i > m - 1 || j < 0 || j > n - 1) continue
-      const cost = grid[i][j]
-      if (ans[x][y] + cost >= ans[i][j]) continue
-      ans[i][j] = ans[x][y] + cost
-      deque.push([i, j])
+  const [totalRows, totalColumns] = [grid.length, grid[0].length]
+  const [targetRow, targetColumn] = [totalRows - 1, totalColumns - 1]
+  const visitedCells = new Uint8Array(totalRows * totalColumns)
+  visitedCells[0] = 1
+  const directionOffsets = [0, -1, 0, 1, 0]
+  let obstacleRemovalCount = 0
+  let currentLevelCells = [0]
+  let nextLevelCells = []
+
+  while (true) {
+    const currentCellIndex = currentLevelCells.pop()
+    const currentRow = (currentCellIndex / totalColumns) >> 0
+    const currentColumn = currentCellIndex % totalColumns
+    for (let i = 0; i < 4; i++) {
+      const neighborRow = currentRow + directionOffsets[i],
+        neighborColumn = currentColumn + directionOffsets[i + 1]
+      if (
+        neighborRow < 0 ||
+        neighborRow >= totalRows ||
+        neighborColumn < 0 ||
+        neighborColumn >= totalColumns
+      )
+        continue
+      if (neighborRow === targetRow && neighborColumn === targetColumn) return obstacleRemovalCount
+      const neighborIndex = neighborRow * totalColumns + neighborColumn
+      if (visitedCells[neighborIndex]) continue
+      visitedCells[neighborIndex] = 1
+      ;(grid[neighborRow][neighborColumn] === 1 ? nextLevelCells : currentLevelCells).push(
+        neighborIndex,
+      )
+    }
+    if (currentLevelCells.length === 0) {
+      obstacleRemovalCount++
+      ;[currentLevelCells, nextLevelCells] = [nextLevelCells, currentLevelCells]
     }
   }
-  return ans[m - 1][n - 1]
 }

@@ -10,15 +10,7 @@
     "tab.activeBorder": "#f42be4"
   },
   "peacock.color": "#e00ccf",
-  "cSpell.words": [
-    "deque",
-    "Kernighan's",
-    "nums",
-    "postorder",
-    "preorder",
-    "subarrays",
-    "Warshall"
-  ],
+  "cSpell.words": ["deque", "Guardable", "Kernighan's", "nums", "postorder", "preorder", "subarrays", "Warshall"],
   "sonarlint.connectedMode.project": {
     "connectionId": "http-localhost-9000",
     "projectKey": "javascript-leetcode"

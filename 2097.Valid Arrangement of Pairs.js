@@ -3,40 +3,50 @@
  * @return {number[][]}
  */
 const validArrangement = (pairs) => {
-  // Maps to track in-degrees and out-degrees for each node.
-  const inDegree = new Map();
-  const outDegree = new Map();
+  const graph = new Map()
+  const inDegree = new Map()
+  const outDegree = new Map()
 
-  // Build an adjacency list mapping each node to its neighbors.
-    if (!inDegree.has(a)) inDegree.set(a, 0)
-    outDegree.set(a, (outDegree.get(a) ?? 0) + 1)
-    if (!outDegree.has(b)) outDegree.set(b, 0)
-    if (!map.has(a)) map.set(a, [])
-    if (!map.has(b)) map.set(b, [])
-    map.get(a).push(b)
+  // Build graph and degree counts
+  for (const [u, v] of pairs) {
+    if (!graph.has(u)) graph.set(u, [])
+    // Push edge as [u, v]
+    graph.get(u).push([u, v])
+    outDegree.set(u, (outDegree.get(u) || 0) + 1)
+    inDegree.set(v, (inDegree.get(v) || 0) + 1)
   }
 
-  let start = map.keys().next().value
-  for (let key of map.keys()) {
-    const ind = inDegree.get(key)
-    const outd = outDegree.get(key)
-    if (ind === outd - 1) {
-      start = key
+  // Sort each vertex's edges for DFS efficiency (optional)
+  for (const edges of graph.values()) {
+    edges.reverse()
+  }
+
+  // Determine starting node
+  let start
+  for (const [u] of graph) {
+    if ((outDegree.get(u) || 0) - (inDegree.get(u) || 0) === 1) {
+      start = u
       break
     }
   }
-  const res = []
-  function dfs(node) {
-    const nbrs = map.get(node)
-    while (nbrs.length) {
-      dfs(nbrs.pop())
-    }
-    res.push(node)
+  if (start === undefined) {
+    // Use any node with outgoing edge
+    start = pairs[0][0]
   }
-  dfs(start)
+
   const ans = []
-  for (let i = res.length - 1; i > 0; i--) {
-    ans.push([res[i], res[i - 1]])
+
+  // DFS using Hierholzer's algorithm
+  const dfs = (u) => {
+    const edges = graph.get(u) || []
+    while (edges.length) {
+      const edge = edges.pop()
+      dfs(edge[1])
+      ans.push(edge)
+    }
   }
-  return ans
+
+  dfs(start)
+  // Reverse the answer (edge order)
+  return ans.reverse()
 }

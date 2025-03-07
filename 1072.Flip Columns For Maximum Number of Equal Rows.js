@@ -1,15 +1,22 @@
-function maxEqualRowsAfterFlips(matrix: number[][]): number {
-    const cnt = new Map<string, number>();
-    let ans = 0;
-    for (const row of matrix) {
-        if (row[0] === 1) {
-            for (let i = 0; i < row.length; i++) {
-                row[i] ^= 1;
-            }
-        }
-        const s = row.join('');
-        cnt.set(s, (cnt.get(s) || 0) + 1);
-        ans = Math.max(ans, cnt.get(s)!);
-    }
-    return ans;
+/**
+ * @param {number[][]} matrix - The input matrix consisting of 0s and 1s
+ * @return {number} - Maximum number of rows that can have all values equal after some flips
+ *
+ * Time Complexity: O(m*n) where m is the number of rows and n is the number of columns
+ * Space Complexity: O(m) for storing the patterns
+ */
+const maxEqualRowsAfterFlips = (matrix) => {
+  const rowPatternCounts = new Map()
+  let maxRowCount = 0
+
+  for (const row of matrix) {
+    const needsNormalization = row[0] === 1
+    const normalizedRow = row.map((value) => (needsNormalization ? value ^ 1 : value)).join('')
+
+    const rowCount = (rowPatternCounts.get(normalizedRow) || 0) + 1
+    rowPatternCounts.set(normalizedRow, rowCount)
+    maxRowCount = Math.max(maxRowCount, rowCount)
+  }
+
+  return maxRowCount
 }

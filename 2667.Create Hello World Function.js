@@ -1,7 +1,8 @@
-function createHelloWorld() {
-    return function (...args): string {
-        return 'Hello World';
-    };
+/**
+ * @return {Function}
+ */
+const createHelloWorld = () => {
+  return () => 'Hello World'
 }
 
 /**

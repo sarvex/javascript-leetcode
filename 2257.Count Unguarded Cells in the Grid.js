@@ -1,28 +1,48 @@
-function countUnguarded(m, n, guards, walls) {
-    const g = Array.from({ length: m }, () => Array.from({ length: n }, () => 0));
-    for (const [i, j] of guards) {
-        g[i][j] = 2;
+/**
+ * @param {number} m - Number of rows in the grid
+ * @param {number} n - Number of columns in the grid
+ * @param {number[][]} guards - Positions of guards, each position as [row, col]
+ * @param {number[][]} walls - Positions of walls, each position as [row, col]
+ * @return {number} - Number of cells that are not guarded
+ */
+const countUnguarded = (m, n, guards, walls) => {
+  const grid = new Array(m * n).fill(0)
+  const [EMPTY, GUARD, WALL, GUARDED] = [0, 1, 2, 3]
+
+  for (const [row, col] of guards) {
+    grid[col + row * n] = GUARD
+  }
+
+  for (const [row, col] of walls) {
+    grid[col + row * n] = WALL
+  }
+
+  const markCellIfGuardable = (cellIndex) => {
+    if (grid[cellIndex] === WALL || grid[cellIndex] === GUARD) {
+      return true
     }
-    for (const [i, j] of walls) {
-        g[i][j] = 2;
+
+    grid[cellIndex] = GUARDED
+    return false
+  }
+
+  for (const [guardRow, guardCol] of guards) {
+    for (let row = guardRow - 1; row >= 0; row--) {
+      if (markCellIfGuardable(guardCol + row * n)) break
     }
-    const dirs = [-1, 0, 1, 0, -1];
-    for (const [i, j] of guards) {
-        for (let k = 0; k < 4; ++k) {
-            let [x, y] = [i, j];
-            let [a, b] = [dirs[k], dirs[k + 1]];
-            while (x + a >= 0 && x + a < m && y + b >= 0 && y + b < n && g[x + a][y + b] < 2) {
-                x += a;
-                y += b;
-                g[x][y] = 1;
-            }
-        }
+
+    for (let row = guardRow + 1; row < m; row++) {
+      if (markCellIfGuardable(guardCol + row * n)) break
     }
-    let ans = 0;
-    for (const row of g) {
-        for (const v of row) {
-            ans += v === 0 ? 1 : 0;
-        }
+
+    for (let col = guardCol - 1; col >= 0; col--) {
+      if (markCellIfGuardable(guardRow * n + col)) break
     }
-    return ans;
+
+    for (let col = guardCol + 1; col < n; col++) {
+      if (markCellIfGuardable(guardRow * n + col)) break
+    }
+  }
+
+  return grid.filter((cellState) => cellState === EMPTY).length
 }

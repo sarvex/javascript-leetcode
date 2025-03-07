@@ -1,23 +1,35 @@
-function countFairPairs(nums: number[], lower: number, upper: number): number {
-    const search = (x: number, l: number): number => {
-        let r = nums.length;
-        while (l < r) {
-            const mid = (l + r) >> 1;
-            if (nums[mid] >= x) {
-                r = mid;
-            } else {
-                l = mid + 1;
-            }
-        }
-        return l;
-    };
+/**
+ * @param {number[]} nums - Array of integers
+ * @param {number} lower - Lower bound for the sum of pairs
+ * @param {number} upper - Upper bound for the sum of pairs
+ * @return {number} - Count of fair pairs
+ */
+const countFairPairs = (nums, lower, upper) => {
+  const countPairsLessThan = (nums, threshold) => {
+    let count = 0
+    let left = 0
+    let right = nums.length - 1
 
-    nums.sort((a, b) => a - b);
-    let ans = 0;
-    for (let i = 0; i < nums.length; ++i) {
-        const j = search(lower - nums[i], i + 1);
-        const k = search(upper - nums[i] + 1, i + 1);
-        ans += k - j;
+    while (left < right) {
+      const currentSum = nums[left] + nums[right]
+
+      if (currentSum < threshold) {
+        // All pairs between left and right with left fixed will have sum < threshold
+        // This is because the array is sorted, so we add (right - left) pairs
+        count += right - left
+        left++
+      } else {
+        // Sum is too large, move right pointer to decrease the sum
+        right--
+      }
     }
-    return ans;
+
+    return count
+  }
+
+  // Sort the array to enable efficient two-pointer approach
+  nums.sort((a, b) => a - b)
+
+  // Calculate pairs with sum < upper+1, then subtract pairs with sum < lower
+  return countPairsLessThan(nums, upper + 1) - countPairsLessThan(nums, lower)
 }
