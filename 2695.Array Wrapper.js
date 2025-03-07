@@ -1,19 +1,23 @@
-class ArrayWrapper {
-    private nums: number[];
-    private s: number;
+/**
+ * @param {number[]} nums
+ * @return {void}
+ */
+const ArrayWrapper = function (nums) {
+  this.nums = nums
+}
 
-    constructor(nums: number[]) {
-        this.nums = nums;
-        this.s = nums.reduce((a, b) => a + b, 0);
-    }
+/**
+ * @return {number}
+ */
+ArrayWrapper.prototype.valueOf = function () {
+  return this.nums.reduce((sum, num) => sum + num, 0)
+}
 
-    valueOf() {
-        return this.s;
-    }
-
-    toString() {
-        return `[${this.nums}]`;
-    }
+/**
+ * @return {string}
+ */
+ArrayWrapper.prototype.toString = function () {
+  return `[${this.nums}]`
 }
 
 /**

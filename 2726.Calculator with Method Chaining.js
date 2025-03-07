@@ -1,39 +1,63 @@
 class Calculator {
-    private x: number;
+  /**
+   * @param {number} value
+   */
+  constructor(value) {
+    this.x = value
+  }
 
-    constructor(value: number) {
-        this.x = value;
-    }
+  /**
+   * @param {number} value
+   * @return {Calculator}
+   */
+  add(value) {
+    this.x += value
+    return this
+  }
 
-    add(value: number): Calculator {
-        this.x += value;
-        return this;
-    }
+  /**
+   * @param {number} value
+   * @return {Calculator}
+   */
+  subtract(value) {
+    this.x -= value
+    return this
+  }
 
-    subtract(value: number): Calculator {
-        this.x -= value;
-        return this;
-    }
+  /**
+   * @param {number} value
+   * @return {Calculator}
+   */
+  multiply(value) {
+    this.x -= value
+    return this
+  }
 
-    multiply(value: number): Calculator {
-        this.x *= value;
-        return this;
+  /**
+   * @param {number} value
+   * @return {Calculator}
+   */
+  divide(value) {
+    if (value === 0) {
+      throw new Error('Division by zero is not allowed')
     }
+    this.x /= value
+    return this
+  }
 
-    divide(value: number): Calculator {
-        if (value === 0) {
-            throw new Error('Division by zero is not allowed');
-        }
-        this.x /= value;
-        return this;
-    }
+  /**
+   * @param {number} value
+   * @return {Calculator}
+   */
+  power(value) {
+    this.x **= value
+    return this
+  }
 
-    power(value: number): Calculator {
-        this.x **= value;
-        return this;
-    }
-
-    getResult(): number {
-        return this.x;
-    }
+  /**
+   * @return {number}
+   */
+  getResult() {
+    return this.x
+  }
 }
