@@ -1,37 +1,89 @@
-function countOfSubstrings(word: string, k: number): number {
-    const f = (k: number): number => {
-        let ans = 0;
-        let l = 0,
-            x = 0;
-        const cnt = new Map<string, number>();
+/**
+ * Counts the number of substrings containing all five vowels and exactly k consonants.
+ *
+ * The approach uses a sliding window technique with the principle of inclusion-exclusion:
+ * - Count substrings with at most k consonants (all vowels must be present)
+ * - Subtract substrings with at most (k-1) consonants
+ * - The difference gives us substrings with exactly k consonants
+ *
+ * @param {string} word - The input string to analyze
+ * @param {number} k - The exact number of consonants required in each substring
+ * @return {number} - Count of valid substrings
+ *
+ * Time Complexity: O(n) where n is the length of the word
+ * Space Complexity: O(1) as we only use a constant amount of extra space
+ */
+const countOfSubstrings = (word, k) => {
+  const hasAllVowels = (a, e, i, o, u) => {
+    return a > 0 && e > 0 && i > 0 && o > 0 && u > 0
+  }
 
-        const vowel = (c: string): boolean => {
-            return c === 'a' || c === 'e' || c === 'i' || c === 'o' || c === 'u';
-        };
+  const countSubstrings = (word, key) => {
+    // Counters for each vowel
+    let [a, e, i, o, u] = [0, 0, 0, 0, 0]
+    let validSubstringsCount = 0
+    let consonantsCount = 0
 
-        for (const c of word) {
-            if (vowel(c)) {
-                cnt.set(c, (cnt.get(c) || 0) + 1);
-            } else {
-                x++;
-            }
+    // Sliding window pointers
+    let leftPointer = 0
 
-            while (x >= k && cnt.size === 5) {
-                const d = word[l++];
-                if (vowel(d)) {
-                    cnt.set(d, cnt.get(d)! - 1);
-                    if (cnt.get(d) === 0) {
-                        cnt.delete(d);
-                    }
-                } else {
-                    x--;
-                }
-            }
-            ans += l;
+    // Process each character in the word
+    for (let rightPointer = 0; rightPointer < word.length; rightPointer++) {
+      const currentChar = word[rightPointer]
+
+      // Update vowel counters or consonant count
+      switch (currentChar) {
+        case 'a':
+          a++
+          break
+        case 'e':
+          e++
+          break
+        case 'i':
+          i++
+          break
+        case 'o':
+          o++
+          break
+        case 'u':
+          u++
+          break
+        default:
+          consonantsCount++ // Character is a consonant
+      }
+
+      // Shrink window if we have all vowels and too many consonants
+      while (hasAllVowels(a, e, i, o, u) && consonantsCount > key) {
+        const leftChar = word[leftPointer++]
+
+        // Update counters when removing character from window
+        switch (leftChar) {
+          case 'a':
+            a--
+            break
+          case 'e':
+            e--
+            break
+          case 'i':
+            i--
+            break
+          case 'o':
+            o--
+            break
+          case 'u':
+            u--
+            break
+          default:
+            consonantsCount-- // Character is a consonant
         }
+      }
 
-        return ans;
-    };
+      // Add count of valid substrings ending at rightPointer
+      validSubstringsCount += rightPointer - leftPointer + 1
+    }
 
-    return f(k) - f(k + 1);
+    return validSubstringsCount
+  }
+
+  return countSubstrings(word, k) - countSubstrings(word, k - 1)
 }

@@ -1,20 +1,34 @@
-function maxMoves(grid: number[][]): number {
-    const m = grid.length;
-    const n = grid[0].length;
-    let q = new Set<number>(Array.from({ length: m }, (_, i) => i));
-    for (let j = 0; j < n - 1; ++j) {
-        const t = new Set<number>();
-        for (const i of q) {
-            for (let k = i - 1; k <= i + 1; ++k) {
-                if (k >= 0 && k < m && grid[i][j] < grid[k][j + 1]) {
-                    t.add(k);
-                }
-            }
+/**
+ * @param {number[][]} grid - Matrix with positive integers
+ * @return {number} - Maximum number of moves possible
+ * @complexity Time: O(m * n), where m is rows and n is columns
+ * @complexity Space: O(m), where m is rows
+ */
+const maxMoves = (grid) => {
+  const rowCount = grid.length
+  const colCount = grid[0].length
+
+  let possibleRows = Array.from({ length: rowCount }, (_, index) => index)
+
+  for (let col = 0; col < colCount - 1; ++col) {
+    const nextPossibleRows = new Set()
+
+    for (const currentRow of possibleRows) {
+      for (let nextRow = currentRow - 1; nextRow <= currentRow + 1; ++nextRow) {
+        const isValidMove = nextRow >= 0 && nextRow < rowCount && grid[currentRow][col] < grid[nextRow][col + 1]
+
+        if (isValidMove) {
+          nextPossibleRows.add(nextRow)
         }
-        if (t.size === 0) {
-            return j;
-        }
-        q = t;
+      }
     }
-    return n - 1;
+
+    if (nextPossibleRows.size === 0) {
+      return col
+    }
+
+    possibleRows = nextPossibleRows
+  }
+
+  return colCount - 1
 }

@@ -1,13 +1,26 @@
-function numberOfAlternatingGroups(colors: number[], k: number): number {
-    const n = colors.length;
-    let [ans, cnt] = [0, 0];
-    for (let i = 0; i < n << 1; ++i) {
-        if (i && colors[i % n] === colors[(i - 1) % n]) {
-            cnt = 1;
-        } else {
-            ++cnt;
-        }
-        ans += i >= n && cnt >= k ? 1 : 0;
+/**
+ * @param {number[]} colors - Array of colors
+ * @param {number} k - Minimum length of alternating group
+ * @return {number} - Number of valid alternating groups
+ */
+const numberOfAlternatingGroups = (colors, k) => {
+  for (let i = 0; i < k - 1; i++) {
+    colors.push(colors[i])
+  }
+
+  let [result, consecutive] = [0, 1]
+
+  for (let i = 1; i < colors.length; i++) {
+    if (colors[i] !== colors[i - 1]) {
+      consecutive++
+    } else {
+      consecutive = 1
     }
-    return ans;
+
+    if (consecutive >= k) {
+      result++
+    }
+  }
+
+  return result
 }
