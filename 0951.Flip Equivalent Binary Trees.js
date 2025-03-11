@@ -1,3 +1,12 @@
+/**
+ * @param {TreeNode} root1
+ * @param {TreeNode} root2
+ * @return {boolean}
+ * @complexity Time: O(n), where n is the number of nodes in the tree
+ * @complexity Space: O(h), where h is the height of the tree
+ * @intuition Check if two trees are flip equivalent
+ * @approach Recursively check if left and right children are flip equivalent
+ */
 function flipEquiv(root1, root2) {
     if (root1 === root2) return true;
     if (!root1 || !root2 || root1?.val !== root2?.val) return false;
