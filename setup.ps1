@@ -1,11 +1,11 @@
 # Remove all files except JS and TS files
 Get-ChildItem -Path . -Recurse -File | Where-Object { $_.Extension -notin ".js",".ts" } | Remove-Item -Force
 
-# Function to process JS/TS files
+# Function to process code files
 function Process-Files($extension) {
     Get-ChildItem -Path . -Recurse -Filter "*$extension" -File | ForEach-Object {
         $parentDirName = Split-Path (Split-Path $_.Directory -Parent) -Leaf
-        $targetDir = Split-Path (Split-Path $_.Directory -Parent) -Parent
+        $targetDir = Split-Path (Split-Path (Split-Path $_.Directory -Parent) -Parent) -Parent
         $newPath = Join-Path $targetDir "$parentDirName.js"
 
         if (-not (Test-Path $newPath)) {

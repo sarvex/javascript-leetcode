@@ -7,8 +7,8 @@ find . -type f -not -name "*.js" -not -name "*.ts" -delete
 for ext in js ts; do
   find . -name "*.$ext" -type f | while read -r file; do
     dir=$(basename "$(dirname "$file")")
-    up2=$(dirname "$(dirname "$(dirname "$file")")")
-    mv -n "$file" "$up2/$dir.js"
+    up=$(dirname "$(dirname "$(dirname "$(dirname "$file")")")")
+    mv -n "$file" "$up/$dir.js"
   done
 done
 
