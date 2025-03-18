@@ -27,7 +27,7 @@
 - use clean architecture while designing the code
 - use self documenting code without unnecessary comments.
 - remove unnecessary comments.
-- prefer nested lambda functions where the caller is only within a single function
+- always use nested lambda functions where the caller is only within a single function
 
 # JavaScript Cursor Rules
 
@@ -178,7 +178,7 @@ This cursor rules file defines standards for modern JavaScript development, adhe
 
 ### Test Coverage
 
-- Write unit tests for all business logic
+- Write unit tests for all business logic using jest in the same file 
 - Implement integration tests for module interactions
 - Apply end-to-end tests for critical user flows
 - Use snapshot testing for UI components

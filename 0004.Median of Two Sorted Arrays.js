@@ -21,43 +21,26 @@
  * Space complexity: O(log(m+n)) for recursion stack
  */
 const findMedianSortedArrays = (nums1, nums2) => {
-    const m = nums1.length;
-    const n = nums2.length;
+  const m = nums1.length;
+  const n = nums2.length;
+  const totalLength = m + n;
+  
+  const findKthElement = (i, j, k) => {
+    if (i >= m) return nums2[j + k - 1];
+    if (j >= n) return nums1[i + k - 1];
+    if (k === 1) return Math.min(nums1[i], nums2[j]);
     
-    // Helper function to find kth element in the merged array
-    const findKthElement = (i, j, k) => {
-        // If we've exhausted nums1, take from nums2
-        if (i >= m) {
-            return nums2[j + k - 1];
-        }
-        // If we've exhausted nums2, take from nums1
-        if (j >= n) {
-            return nums1[i + k - 1];
-        }
-        // Base case: if k=1, return the smaller of the two current elements
-        if (k === 1) {
-            return Math.min(nums1[i], nums2[j]);
-        }
-        
-        // Divide k into two parts
-        const half = Math.floor(k / 2);
-        
-        // Find potential candidates from both arrays
-        // Use a large value as sentinel if index is out of bounds
-        const midVal1 = i + half - 1 < m ? nums1[i + half - 1] : Number.MAX_SAFE_INTEGER;
-        const midVal2 = j + half - 1 < n ? nums2[j + half - 1] : Number.MAX_SAFE_INTEGER;
-        
-        // Recursively search in the right half
-        return midVal1 < midVal2 
-            ? findKthElement(i + half, j, k - half) 
-            : findKthElement(i, j + half, k - half);
-    };
+    const half = Math.floor(k / 2);
+    const midVal1 = i + half - 1 < m ? nums1[i + half - 1] : Infinity;
+    const midVal2 = j + half - 1 < n ? nums2[j + half - 1] : Infinity;
     
-    // For odd total length, middle element is the median
-    // For even total length, average of two middle elements is the median
-    const totalLength = m + n;
-    const leftMiddle = findKthElement(0, 0, Math.floor((totalLength + 1) / 2));
-    const rightMiddle = findKthElement(0, 0, Math.floor((totalLength + 2) / 2));
-    
-    return (leftMiddle + rightMiddle) / 2;
+    return midVal1 < midVal2 
+      ? findKthElement(i + half, j, k - half) 
+      : findKthElement(i, j + half, k - half);
+  };
+  
+  const leftMiddle = findKthElement(0, 0, Math.floor((totalLength + 1) / 2));
+  const rightMiddle = findKthElement(0, 0, Math.floor((totalLength + 2) / 2));
+  
+  return (leftMiddle + rightMiddle) / 2;
 };

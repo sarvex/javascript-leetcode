@@ -4,127 +4,87 @@
  * @param {number[][]} edges - Array of edges where each edge is [a, b] indicating connection between nodes a and b
  * @param {number} bob - The starting node for Bob
  * @param {number[]} amount - Array where amount[i] is the price/reward at node i
- * @return {number} - The maximum net income Alice can have
+ * @returns {number} - The maximum net income Alice can have
+ *
+ * @intuition
+ * This is a tree traversal problem where we need to track both Alice and Bob's paths.
+ * Alice starts at node 0 and moves toward leaves, while Bob starts at his node and moves toward node 0.
+ * We need to calculate the profit based on who reaches each node first.
+ *
+ * @approach
+ * 1. Build an adjacency list from the edges
+ * 2. Find Bob's path to the root (node 0) and record the depth at which he visits each node
+ * 3. Perform DFS from node 0 to find Alice's optimal path, calculating profit at each step
+ * 4. The profit calculation depends on whether Alice reaches a node before, after, or at the same time as Bob
+ *
+ * @complexity
+ * Time: O(n) where n is the number of nodes in the tree
+ * Space: O(n) for the adjacency list and depth tracking arrays
  */
 const mostProfitablePath = (edges, bob, amount) => {
-  // Build adjacency list with optimized memory usage
-  let adjList = new Array(edges.length + 1)
-  let r = null
+  const n = edges.length + 1;
 
-  for (let e of edges) {
-    let v1 = e[0],
-      v2 = e[1]
+  // Build adjacency list
+  const graph = Array.from({ length: n }, () => []);
 
-    if (adjList[v1] && adjList[v2]) {
-      r = e
+  edges.forEach(([a, b]) => {
+    graph[a].push(b);
+    graph[b].push(a);
+  });
+
+  // Track Bob's path to root
+  const bobDepth = Array(n).fill(-1);
+
+  // Find Bob's path to root using DFS
+  const findBobPath = (node, parent, depth) => {
+    if (node === 0) {
+      bobDepth[node] = depth;
+      return true;
     }
 
-    if (!adjList[v1]) {
-      adjList[v1] = r || e
-      adjList[v1].length = 1
+    for (const neighbor of graph[node]) {
+      if (neighbor === parent) continue;
 
-      if (r) {
-        r = e
+      if (findBobPath(neighbor, node, depth + 1)) {
+        bobDepth[node] = depth;
+        return true;
       }
-      e = null
+    }
 
-      adjList[v1][0] = v2
+    return false;
+  };
+
+  findBobPath(bob, -1, 0);
+
+  // Find Alice's optimal path using DFS
+  const findAlicePath = (node, parent, depth) => {
+    let income;
+
+    if (bobDepth[node] === depth) {
+      income = amount[node] / 2;
+    } else if (bobDepth[node] === -1 || bobDepth[node] > depth) {
+      income = amount[node];
     } else {
-      adjList[v1].push(v2)
+      income = 0;
     }
 
-    if (!adjList[v2]) {
-      if (!r && !e) {
-        e = []
-      }
-      adjList[v2] = r || e
-      adjList[v2].length = 1
+    const isLeaf = graph[node].length === 1 && node !== 0;
 
-      if (r) {
-        r = e
-      }
-
-      adjList[v2][0] = v1
-    } else {
-      adjList[v2].push(v1)
-    }
-  }
-
-  // Reuse edges array to store Bob's depths (optimization to avoid extra memory allocation)
-  let bobDepths = edges.fill(-1)
-  bobDepths.push(-1)
-
-  // Find Bob's path to root
-  findBobPath(bob, null, 0)
-
-  // Find Alice's best path
-  let best = findAlicePath(0, null, 0)
-
-  return best
-
-  /**
-   * DFS to find Bob's path from his starting node to node 0
-   * @param {number} v1 - Current node
-   * @param {number} prev - Previous node (to avoid going back)
-   * @param {number} depth - Current depth
-   * @return {boolean} - Whether this path leads to node 0
-   */
-  function findBobPath(v1, prev, depth) {
-    bobDepths[v1] = depth
-
-    if (v1 === 0) {
-      return true
+    if (isLeaf) {
+      return income;
     }
 
-    for (let v2 of adjList[v1]) {
-      if (v2 === prev) {
-        continue
-      }
+    let maxChildProfit = -Infinity;
 
-      if (findBobPath(v2, v1, depth + 1)) {
-        return true
-      }
+    for (const neighbor of graph[node]) {
+      if (neighbor === parent) continue;
+
+      maxChildProfit = Math.max(maxChildProfit, findAlicePath(neighbor, node, depth + 1));
     }
 
-    // This path doesn't lead to root
-    bobDepths[v1] = -1
-    return false
-  }
+    return income + (maxChildProfit === -Infinity ? 0 : maxChildProfit);
+  };
 
-  /**
-   * DFS to find Alice's optimal path from root
-   * @param {number} v1 - Current node
-   * @param {number} prev - Previous node (to avoid going back)
-   * @param {number} depth - Current depth
-   * @return {number} - Maximum profit from this node
-   */
-  function findAlicePath(v1, prev, depth) {
-    let profit = -Infinity
+  return findAlicePath(0, -1, 0);
+};
 
-    // Try all paths from current node
-    for (let v2 of adjList[v1]) {
-      if (v2 === prev) {
-        continue
-      }
-
-      profit = Math.max(profit, findAlicePath(v2, v1, depth + 1))
-    }
-
-    // If this is a leaf node, initialize profit to 0
-    if (profit === -Infinity) {
-      profit = 0
-    }
-
-    // Calculate income at current node
-    if (bobDepths[v1] === depth) {
-      // Alice and Bob reach simultaneously, share the amount
-      profit += amount[v1] / 2
-    } else if (bobDepths[v1] < 0 || bobDepths[v1] >= depth) {
-      // Bob hasn't reached this node yet or won't reach it, Alice gets full amount
-      profit += amount[v1]
-    }
-    // If bobDepths[v1] > 0 && bobDepths[v1] < depth, Bob already opened the gate, so Alice gets nothing
-
-    return profit
-  }
-}
