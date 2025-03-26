@@ -1,94 +1,155 @@
 /**
- * @param {string} s
- * @param {string} p
- * @return {number}
+ * Binary Search + KMP - Find the shortest substring containing all pattern segments
+ * 
+ * @intuition
+ * The pattern p consists of segments separated by '*'. We need to find the shortest
+ * substring in s that contains all these segments in order. We use KMP algorithm
+ * to efficiently find all occurrences of each segment, then use binary search to
+ * find the next valid segment position.
+ * 
+ * @approach
+ * 1. Split the pattern by '*' and filter out empty segments
+ * 2. Use KMP to find all occurrences of each segment in the string
+ * 3. For each occurrence of the first segment, use binary search to find the
+ *    earliest valid occurrence of subsequent segments
+ * 4. Calculate minimum substring length that contains all segments in order
+ * 
+ * @complexity
+ * Time: O(n + m + k log k) where n is the length of s, m is the length of p,
+ *       and k is the number of occurrences of segments
+ * Space: O(n + m) for storing the occurrences and KMP table
+ * 
+ * @param {string} inputString - The input string
+ * @param {string} patternWithWildcards - The pattern with wildcards
+ * @return {number} - Length of shortest matching substring or -1 if none exists
  */
-const shortestMatchingSubstring = (s, p) => {
-  let [op1, op2, op3] = p.split('*')
-
-  if (!op2) {
-    op2 = op3
-    op3 = ''
+const shortestMatchingSubstring = (inputString, patternWithWildcards) => {
+  // Split pattern by '*' and filter out empty segments
+  const patternSegments = [];
+  const segmentPositions = [];
+  
+  // Extract all non-empty segments from the pattern
+  for (const segment of patternWithWildcards.split('*')) {
+    if (segment.length) {
+      patternSegments.push(segment);
+      segmentPositions.push(findAllPatternOccurrences(segment, inputString));
+    }
   }
-
-  if (!op1) {
-    op1 = op2
-    op2 = op3
-    op3 = ''
+  
+  // If no pattern segments (all wildcards), return 0
+  const segmentCount = patternSegments.length;
+  if (segmentCount === 0) return 0;
+  
+  // If any segment doesn't appear in the string, return -1
+  if (segmentPositions.some(positions => positions.length === 0)) {
+    return -1;
   }
-
-  if (!op2 && !op3) return op1.length
-
-  let op1i = findAllIndicesKMP(s, op1)
-  let op2i = findAllIndicesKMP(s, op2)
-  let op3i = findAllIndicesKMP(s, op3)
-
-  let min = Infinity
-  let i2 = 0
-  let i3 = 0
-  for (let op1Indices of op1i) {
-    if (min === p.length - 2) return min
-    const [op1S, op1E] = op1Indices
-    while (op2i[i2] && op2i[i2][0] <= op1E) i2++
-    while (op3i[i3] && op3i[i3][0] <= op2i[i2]?.[1]) i3++
-
-    if (op1S + min < op2i[i2]?.[1]) continue
-    if (op1S + min < op3i[i3]?.[1]) continue
-
-    if (!op2i[i2]) break
-
-    if (op3) {
-      if (op3i[i3]) {
-        const dist = op3i[i3][1] - op1S + 1
-        min = Math.min(min, dist)
+  
+  let minimumSubstringLength = Infinity;
+  
+  // For each occurrence of the first pattern segment
+  for (const firstPosition of segmentPositions[0]) {
+    // If only one segment, the answer is just the length of that segment
+    if (segmentCount === 1) {
+      minimumSubstringLength = Math.min(minimumSubstringLength, patternSegments[0].length);
+    } 
+    // For two segments
+    else if (segmentCount === 2) {
+      // Find the first occurrence of second segment after first segment + its length
+      const nextPositionIndex = findFirstPositionGreaterOrEqual(
+        segmentPositions[1],
+        firstPosition + patternSegments[0].length
+      );
+      
+      if (nextPositionIndex < segmentPositions[1].length) {
+        const secondPosition = segmentPositions[1][nextPositionIndex];
+        const substringLength = secondPosition + patternSegments[1].length - firstPosition;
+        minimumSubstringLength = Math.min(minimumSubstringLength, substringLength);
       }
-    } else if (op2i[i2]) {
-      const dist = op2i[i2][1] - op1S + 1
-      min = Math.min(min, dist)
+    } 
+    // For three segments
+    else if (segmentCount === 3) {
+      // Find the first occurrence of second segment after first segment + its length
+      const secondPositionIndex = findFirstPositionGreaterOrEqual(
+        segmentPositions[1],
+        firstPosition + patternSegments[0].length
+      );
+      
+      if (secondPositionIndex < segmentPositions[1].length) {
+        const secondPosition = segmentPositions[1][secondPositionIndex];
+        
+        // Find the first occurrence of third segment after second segment + its length
+        const thirdPositionIndex = findFirstPositionGreaterOrEqual(
+          segmentPositions[2],
+          secondPosition + patternSegments[1].length
+        );
+        
+        if (thirdPositionIndex < segmentPositions[2].length) {
+          const thirdPosition = segmentPositions[2][thirdPositionIndex];
+          const substringLength = thirdPosition + patternSegments[2].length - firstPosition;
+          minimumSubstringLength = Math.min(minimumSubstringLength, substringLength);
+        }
+      }
     }
   }
-
-  return min === Infinity ? -1 : min
-}
-
-const findAllIndicesKMP = (s, toFind, startFrom = 0) => {
-  if (!toFind) return []
-  const indices = []
-
-  // construct table
-  const table = [0]
-  let m = 0
-  for (let i = 1; i < toFind.length; i++) {
-    if (toFind[i] === toFind[m]) {
-      table[i] = ++m
-    } else if (m > 0) {
-      m = table[m - 1]
-      i--
-    } else {
-      table[i] = 0
+  
+  return minimumSubstringLength < Infinity ? minimumSubstringLength : -1;
+  
+  /**
+   * Knuth-Morris-Pratt algorithm to find all starting indices of pattern in text
+   * 
+   * @param {string} searchPattern - Pattern to search for
+   * @param {string} searchText - Text to search in
+   * @return {number[]} - Array of starting indices where pattern occurs
+   */
+  function findAllPatternOccurrences(searchPattern, searchText) {
+    // Build longest proper prefix which is also suffix array
+    const prefixTable = [0];
+    
+    for (let i = 1, k = 0; i < searchPattern.length; ++i) {
+      while (k && searchPattern[k] !== searchPattern[i]) k = prefixTable[k-1];
+      if (searchPattern[k] === searchPattern[i]) ++k;
+      prefixTable.push(k);
     }
+    
+    const startingPositions = [];
+    
+    // Find all occurrences using KMP algorithm
+    for (let i = 0, k = 0; i < searchText.length; ++i) {
+      while (k && (k === searchPattern.length || searchPattern[k] !== searchText[i])) {
+        k = prefixTable[k-1];
+      }
+      
+      if (searchPattern[k] === searchText[i]) ++k;
+      
+      if (k === searchPattern.length) {
+        startingPositions.push(i - searchPattern.length + 1);
+      }
+    }
+    
+    return startingPositions;
   }
-
-  // kmp
-  m = 0
-  let i = 0
-  while (i < s.length) {
-    while (toFind[m] === s[i + m] && m < toFind.length) {
-      m++
+  
+  /**
+   * Binary search to find the leftmost index where value >= target
+   * 
+   * @param {number[]} sortedArray - Sorted array to search in
+   * @param {number} targetValue - Value to search for
+   * @return {number} - Index of the first element >= target, or array length if none
+   */
+  function findFirstPositionGreaterOrEqual(sortedArray, targetValue) {
+    let leftBound = 0;
+    let rightBound = sortedArray.length;
+    
+    while (leftBound < rightBound) {
+      const midPoint = (leftBound + rightBound) >> 1;
+      if (sortedArray[midPoint] < targetValue) {
+        leftBound = midPoint + 1;
+      } else {
+        rightBound = midPoint;
+      }
     }
-
-    if (m === toFind.length) {
-      indices.push([i, i + m - 1])
-    }
-
-    if (m === 0) {
-      i++
-      continue
-    }
-
-    i += m - table[m - 1]
-    m = table[m - 1]
+    
+    return leftBound;
   }
-
-  return indices
-}
+};
