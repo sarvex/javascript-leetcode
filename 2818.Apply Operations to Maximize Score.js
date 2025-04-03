@@ -1,75 +1,94 @@
-function maximumScore(nums: number[], k: number): number {
-    const mod = 10 ** 9 + 7;
-    const n = nums.length;
-    const arr: number[][] = Array(n)
-        .fill(0)
-        .map(() => Array(3).fill(0));
-    const left: number[] = Array(n).fill(-1);
-    const right: number[] = Array(n).fill(n);
-    for (let i = 0; i < n; ++i) {
-        arr[i] = [i, primeFactors(nums[i]), nums[i]];
-    }
-    const stk: number[] = [];
-    for (const [i, f, _] of arr) {
-        while (stk.length && arr[stk.at(-1)!][1] < f) {
-            stk.pop();
-        }
-        if (stk.length) {
-            left[i] = stk.at(-1)!;
-        }
-        stk.push(i);
-    }
-    stk.length = 0;
-    for (let i = n - 1; i >= 0; --i) {
-        const f = arr[i][1];
-        while (stk.length && arr[stk.at(-1)!][1] <= f) {
-            stk.pop();
-        }
-        if (stk.length) {
-            right[i] = stk.at(-1)!;
-        }
-        stk.push(i);
-    }
-    arr.sort((a, b) => b[2] - a[2]);
-    let ans = 1n;
-    for (const [i, _, x] of arr) {
-        const l = left[i];
-        const r = right[i];
-        const cnt = (i - l) * (r - i);
-        if (cnt <= k) {
-            ans = (ans * qpow(BigInt(x), cnt, mod)) % BigInt(mod);
-            k -= cnt;
-        } else {
-            ans = (ans * qpow(BigInt(x), k, mod)) % BigInt(mod);
-            break;
-        }
-    }
-    return Number(ans);
-}
+/**
+ * Monotonic stack with optimized prime factor calculation
+ * @intuition We need to maximize the score by selecting subarrays with the highest prime score.
+ * Using monotonic stack to find the range of influence for each element.
+ * @approach
+ * 1. Calculate prime factors for each number efficiently
+ * 2. Use monotonic stack to find the contribution of each element
+ * 3. Sort by value in descending order and apply operations greedily
+ * @complexity
+ * Time: O(n log n) where n is the length of the array
+ * Space: O(n) for the arrays and stack
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+const maximumScore = (nums, k) => {
+  const MOD = 1e9 + 7
+  const n = nums.length
 
-function primeFactors(n: number): number {
-    let i = 2;
-    const s: Set<number> = new Set();
-    while (i * i <= n) {
-        while (n % i === 0) {
-            s.add(i);
-            n = Math.floor(n / i);
-        }
-        ++i;
-    }
-    if (n > 1) {
-        s.add(n);
-    }
-    return s.size;
-}
+  // Calculate prime factors more efficiently
+  const calculatePrimeFactors = num => {
+    let count = 0
+    let factor = 2
+    const end = Math.sqrt(num)
 
-function qpow(a: bigint, n: number, mod: number): bigint {
-    let ans = 1n;
-    for (; n; n >>>= 1) {
-        if (n & 1) {
-            ans = (ans * a) % BigInt(mod);
+    while (num > 1 && factor <= end) {
+      let found = false
+      while (num % factor === 0) {
+        if (!found) {
+          count++
+          found = true
         }
-        a = (a * a) % BigInt(mod);
+        num /= factor
+      }
+      factor++
     }
-    return ans;
+
+    if (num > 1) {
+      count++
+    }
+
+    return count
+  }
+
+  // Fast power calculation using recursive approach
+  const fastPow = (base, exponent, mod) => {
+    if (exponent === 0n) return 1n
+
+    const half = fastPow(base, exponent >> 1n, mod) % mod
+    const result = (half * half) % mod
+
+    return exponent % 2n === 0n ? result : (result * base) % mod
+  }
+
+  // Calculate prime factors for each number
+  const primeScores = nums.map(calculatePrimeFactors)
+
+  // Calculate contribution of each element using monotonic stack
+  const contributions = Array(n).fill(0)
+  const stack = [-1]
+
+  // Process elements from left to right
+  for (let i = 0; i < n; i++) {
+    while (stack[stack.length - 1] !== -1 && primeScores[stack[stack.length - 1]] < primeScores[i]) {
+      const curr = stack.pop()
+      contributions[curr] = (curr - stack[stack.length - 1]) * (i - curr)
+    }
+    stack.push(i)
+  }
+
+  // Process remaining elements in stack
+  while (stack[stack.length - 1] !== -1) {
+    const curr = stack.pop()
+    contributions[curr] = (curr - stack[stack.length - 1]) * (n - curr)
+  }
+
+  // Create pairs of [value, contribution] and sort by value
+  const operations = nums.map((value, index) => [value, contributions[index]])
+  operations.sort((a, b) => b[0] - a[0])
+
+  // Apply operations greedily
+  let result = 1n
+  const modBig = BigInt(MOD)
+
+  for (let i = 0; i < operations.length && k > 0; i++) {
+    const [value, contribution] = operations[i]
+    const operationsToApply = Math.min(contribution, k)
+
+    result = (result * fastPow(BigInt(value), BigInt(operationsToApply), modBig)) % modBig
+    k -= operationsToApply
+  }
+
+  return Number(result)
 }
