@@ -1,45 +1,57 @@
 /**
- * @param {number} start
- * @param {number} finish
- * @param {number} limit
- * @param {string} s
- * @return {number}
+ * Digit-by-digit counting with prefix enumeration
+ * 
+ * @intuition We can count powerful integers by calculating how many valid numbers exist up to a certain bound,
+ * then find the difference between the counts for the upper and lower bounds.
+ * 
+ * @approach We convert numbers to strings and process them digit by digit from most significant to least.
+ * For each position, we count valid prefixes based on the digit limit, then handle the suffix comparison separately.
+ * 
+ * @complexity
+ * Time: O(log(finish)), where log represents the number of digits in the numbers
+ * Space: O(log(finish)) for string conversions
+ * 
+ * @param {number} start - The lower bound of the range
+ * @param {number} finish - The upper bound of the range
+ * @param {number} limit - The maximum allowed digit value
+ * @param {string} s - The required suffix for powerful integers
+ * @return {number} - Count of powerful integers in the range
  */
-const numberOfPowerfulInt = function (start, finish, limit, s) {
-  return getPowerfulInt(String(finish), limit, s) - getPowerfulInt(String(start - 1), limit, s)
-}
-
-/**
- * @param {string} from
- * @param {number} limit
- * @param {string} suffix
- * @return {number}
- */
-function getPowerfulInt(from, limit, suffix) {
-  // Fail fast optimizes
-  if (from.length < suffix.length) return 0
-
-  if (from.length === suffix.length) return +from >= +suffix ? 1 : 0
-
-  let answer = 0
-
-  // Numbers of digits count (length) difference of from and suffix
-  const fsDigitDiff = from.length - suffix.length
-
-  for (let i = 0; i < fsDigitDiff; i++) {
-    // If current digit is larger than limit then we can take all remaining combinations with pow(limit+1, digits)
-    if (limit < +from[i]) {
-      answer += Math.pow(limit + 1, fsDigitDiff - i)
-      return answer
-    }
-    // Else, we process each digit down until we reach 0 digit diff level, then we compare the suffix outside of the loop
-    answer += +from[i] * Math.pow(limit + 1, fsDigitDiff - 1 - i)
-  }
-
-  // Get last suffix.length digits of from
-  // E.g: from: '13579', suffix: '123': compareSuffix = '579'
-  const compareSuffix = from.slice(-suffix.length)
-  if (compareSuffix >= suffix) ++answer
-
-  return answer
-}
+const numberOfPowerfulInt = (start, finish, limit, s) => {
+  const countUpTo = bound => {
+    const boundStr = String(bound);
+    
+    // Handle cases where bound is shorter than or equal to suffix length
+    if (boundStr.length < s.length) return 0;
+    if (boundStr.length === s.length) return boundStr >= s ? 1 : 0;
+    
+    let powerfulCount = 0;
+    const prefixLength = boundStr.length - s.length;
+    
+    // Calculate combinations for each digit position in the prefix
+    const calculatePrefixCombinations = () => {
+      for (let i = 0; i < prefixLength; i++) {
+        const currentDigit = +boundStr[i];
+        const remainingPositions = prefixLength - i - 1;
+        
+        // If digit exceeds limit, count all remaining valid combinations and exit
+        if (currentDigit > limit) {
+          powerfulCount += Math.pow(limit + 1, remainingPositions + 1);
+          return;
+        }
+        
+        // Add combinations for digits less than current bound digit
+        powerfulCount += currentDigit * Math.pow(limit + 1, remainingPositions);
+      }
+      
+      // Check if the bound's suffix meets the requirement
+      const boundSuffix = boundStr.slice(-s.length);
+      if (boundSuffix >= s) powerfulCount++;
+    };
+    
+    calculatePrefixCombinations();
+    return powerfulCount;
+  };
+  
+  return countUpTo(finish) - countUpTo(start - 1);
+};
