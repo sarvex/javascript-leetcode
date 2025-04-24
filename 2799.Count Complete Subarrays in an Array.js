@@ -1,23 +1,39 @@
-function countCompleteSubarrays(nums: number[]): number {
-    const d: Map<number, number> = new Map();
-    for (const x of nums) {
-        d.set(x, (d.get(x) ?? 0) + 1);
+/**
+ * Sliding window with frequency map to count complete subarrays
+ *
+ * @intuition
+ * Track the number of unique elements in the array. For each right pointer, expand the window and shrink from the left when all unique elements are present, counting all valid subarrays.
+ *
+ * @approach
+ * Use a Map to track the frequency of elements in the current window. When the window contains all unique elements, every subarray ending at the current right pointer is valid. Shrink the window from the left to find all such subarrays efficiently.
+ *
+ * @complexity
+ * time O(n)
+ * space O(n)
+ *
+ * @param {number[]} nums - The array of numbers to process
+ * @returns {number} The count of complete subarrays
+ */
+export const countCompleteSubarrays = (nums = []) => {
+  if (!nums.length) {
+    return 0
+  }
+  const uniqueCount = new Set(nums).size
+  const frequency = new Map()
+  let total = 0
+  let left = 0
+  for (let right = 0; right < nums.length; right++) {
+    const value = nums[right]
+    frequency.set(value, (frequency.get(value) ?? 0) + 1)
+    while (frequency.size === uniqueCount) {
+      total += nums.length - right
+      const leftValue = nums[left]
+      frequency.set(leftValue, frequency.get(leftValue) - 1)
+      if (frequency.get(leftValue) === 0) {
+        frequency.delete(leftValue)
+      }
+      left++
     }
-    const cnt = d.size;
-    d.clear();
-    const n = nums.length;
-    let ans = 0;
-    let i = 0;
-    for (let j = 0; j < n; ++j) {
-        d.set(nums[j], (d.get(nums[j]) ?? 0) + 1);
-        while (d.size === cnt) {
-            ans += n - j;
-            d.set(nums[i], d.get(nums[i])! - 1);
-            if (d.get(nums[i]) === 0) {
-                d.delete(nums[i]);
-            }
-            ++i;
-        }
-    }
-    return ans;
+  }
+  return total
 }

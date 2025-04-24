@@ -1,38 +1,44 @@
+/**
+ * Stack-based preorder tree recovery
+ *
+ * @intuition Use a stack to track the path from root to current node, using dash count as depth
+ * @approach Parse depth and value in a single pass; pop stack to correct depth, attach as left/right child
+ * @complexity Time: O(n) where n = traversal.length
+ * @complexity Space: O(h) where h = tree height
+ * @param {string} traversal
+ * @return {TreeNode}
+ */
 function recoverFromPreorder(traversal) {
-    const stack = [];
-    let i = 0;
-
-    while (i < traversal.length) {
-        let depth = 0;
-        while (i < traversal.length && traversal[i] === '-') {
-            depth++;
-            i++;
-        }
-
-        let num = 0;
-        while (i < traversal.length && !Number.isNaN(+traversal[i])) {
-            num = num * 10 + +traversal[i];
-            i++;
-        }
-
-        // Create the new node
-        const newNode = new TreeNode(num);
-
-        while (stack.length > depth) {
-            stack.pop();
-        }
-
-        if (stack.length > 0) {
-            const i = stack.length - 1;
-            if (stack[i].left === null) {
-                stack[i].left = newNode;
-            } else {
-                stack[i].right = newNode;
-            }
-        }
-
-        stack.push(newNode);
+  /**
+   * @param {number} val
+   * @param {TreeNode|null} left
+   * @param {TreeNode|null} right
+   */
+  function TreeNode(val, left, right) {
+    this.val = val ?? 0
+    this.left = left ?? null
+    this.right = right ?? null
+  }
+  const stack = []
+  let i = 0
+  while (i < traversal.length) {
+    let depth = 0
+    while (traversal[i] === '-') {
+      depth++
+      i++
     }
-
-    return stack.length ? stack[0] : null;
+    let val = 0
+    while (i < traversal.length && traversal[i] !== '-') {
+      val = val * 10 + (traversal[i].charCodeAt(0) - 48)
+      i++
+    }
+    const node = new TreeNode(val)
+    while (stack.length > depth) stack.pop()
+    if (stack.length) {
+      if (!stack.at(-1).left) stack.at(-1).left = node
+      else stack.at(-1).right = node
+    }
+    stack.push(node)
+  }
+  return stack[0]
 }

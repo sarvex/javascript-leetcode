@@ -29,6 +29,7 @@
 - use self documenting code without unnecessary comments.
 - remove unnecessary comments.
 - always use nested lambda functions where the caller is only within a single function
+- don't use semi-colons as line terminators
 
 # JavaScript Cursor Rules
 
@@ -42,6 +43,7 @@ This cursor rules file defines standards for modern JavaScript development, adhe
 - Use ES2022+ features like optional chaining (`?.`), nullish coalescing (`??`), and logical assignment operators (`??=`, `&&=`, `||=`)
 - Utilize top-level `await` in modules when appropriate
 - Leverage modern array methods (`map`, `filter`, `reduce`, `flatMap`, etc.) over imperative loops
+- Use array destructuring to assign multiple variables
 
 ### Variable Declarations
 

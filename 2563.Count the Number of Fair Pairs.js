@@ -1,35 +1,29 @@
 /**
- * @param {number[]} nums - Array of integers
- * @param {number} lower - Lower bound for the sum of pairs
- * @param {number} upper - Upper bound for the sum of pairs
- * @return {number} - Count of fair pairs
+ * Count fair pairs using two-pointer and sorting
+ *
+ * @intuition
+ * Sorting enables efficient pair counting by leveraging order; two pointers can skip unnecessary checks.
+ *
+ * @approach
+ * Sort the array. For each threshold, use a two-pointer lambda to count pairs with sum less than the threshold. The answer is the difference between counts for upper+1 and lower.
+ *
+ * @complexity
+ * Time: O(n log n) (sorting dominates)
+ * Space: O(1) (in-place sort, no extra space beyond variables)
+ *
+ * @param {number[]} nums - input array
+ * @param {number} lower - lower sum bound
+ * @param {number} upper - upper sum bound
+ * @returns {number} fair pair count
  */
 const countFairPairs = (nums, lower, upper) => {
-  const countPairsLessThan = (nums, threshold) => {
-    let count = 0
-    let left = 0
-    let right = nums.length - 1
-
-    while (left < right) {
-      const currentSum = nums[left] + nums[right]
-
-      if (currentSum < threshold) {
-        // All pairs between left and right with left fixed will have sum < threshold
-        // This is because the array is sorted, so we add (right - left) pairs
-        count += right - left
-        left++
-      } else {
-        // Sum is too large, move right pointer to decrease the sum
-        right--
-      }
-    }
-
-    return count
-  }
-
-  // Sort the array to enable efficient two-pointer approach
   nums.sort((a, b) => a - b)
-
-  // Calculate pairs with sum < upper+1, then subtract pairs with sum < lower
-  return countPairsLessThan(nums, upper + 1) - countPairsLessThan(nums, lower)
+  const countLess = (threshold) => {
+    let res = 0,
+      l = 0,
+      r = nums.length - 1
+    while (l < r) nums[l] + nums[r] < threshold ? ((res += r - l), l++) : r--
+    return res
+  }
+  return countLess(upper + 1) - countLess(lower)
 }

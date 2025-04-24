@@ -10,7 +10,17 @@
     "tab.activeBorder": "#fbed80"
   },
   "peacock.color": "#f9e64f",
-  "cSpell.words": ["deque", "Guardable", "Kernighan's", "nums", "postorder", "preorder", "subarrays", "Warshall"],
+  "cSpell.words": [
+    "deque",
+    "Fenwick",
+    "Guardable",
+    "Kernighan's",
+    "nums",
+    "postorder",
+    "preorder",
+    "subarrays",
+    "Warshall"
+  ],
   "sonarlint.connectedMode.project": {
     "connectionId": "sarvex",
     "projectKey": "sarvex_javascript-leetcode"

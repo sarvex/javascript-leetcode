@@ -55,25 +55,13 @@ const constructFromPrePost = (preorder, postorder) => {
 
       // Find the position of the left subtree's root in postorder
       const leftRootPostIdx = postValToIdx.get(leftRootVal)
-
-      // Calculate the size of the left subtree
       const leftSubtreeSize = leftRootPostIdx - postStart + 1
-
-      // Recursively build left and right subtrees
-      // For left subtree:
-      //   - In preorder: from just after root to the end of left subtree
-      //   - In postorder: from start to the position of left subtree's root
       root.left = build(preStart + 1, preStart + leftSubtreeSize, postStart, leftRootPostIdx)
-
-      // For right subtree:
-      //   - In preorder: from after left subtree to the end
-      //   - In postorder: from after left subtree to just before the root
       root.right = build(preStart + leftSubtreeSize + 1, preEnd, leftRootPostIdx + 1, postEnd - 1)
     }
 
     return root
   }
 
-  // Start the recursive tree construction with the full arrays
   return build(0, n - 1, 0, n - 1)
 }
