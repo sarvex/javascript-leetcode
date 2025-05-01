@@ -1,26 +1,34 @@
-function minimumWhiteTiles(floor: string, numCarpets: number, carpetLen: number): number {
-    const n = floor.length;
-    const f: number[][] = Array.from({ length: n }, () => Array(numCarpets + 1).fill(-1));
-    const s: number[] = Array(n + 1).fill(0);
-    for (let i = 0; i < n; ++i) {
-        s[i + 1] = s[i] + (floor[i] === '1' ? 1 : 0);
+/**
+ * Sliding window DP for maximizing covered white tiles, then subtract for minimum uncovered
+ *
+ * @intuition Maximize the number of white tiles covered by carpets; uncovered = total - covered
+ * @approach Use bottom-up DP with a sliding window to track covered tiles, iterating over tiles and carpets
+ * @complexity Time: O(n * numCarpets)\nSpace: O(n * numCarpets)
+ * @param {string} floor - String of '0' and '1' representing tiles
+ * @param {number} numCarpets - Number of carpets available
+ * @param {number} carpetLen - Length of each carpet
+ * @returns {number} Minimum number of white tiles left uncovered
+ */
+const minimumWhiteTiles = (floor, numCarpets, carpetLen) => {
+  const n = floor.length
+  let all = 0
+  let sum = 0
+  const dp = Array.from({ length: n + 1 }, () => new Uint32Array(numCarpets + 1))
+  for (let i = 0; i < n; ++i) {
+    all += floor[i] === '1' ? 1 : 0
+    sum += floor[i] === '1' ? 1 : 0
+    if (i >= carpetLen) sum -= floor[i - carpetLen] === '1' ? 1 : 0
+    for (let j = 0; j <= numCarpets; ++j) {
+      if (!j) {
+        dp[i][j] = 0
+        continue
+      }
+      if (i < carpetLen) {
+        dp[i][j] = sum
+        continue
+      }
+      dp[i][j] = Math.max(dp[i - 1][j], dp[i - carpetLen][j - 1] + sum)
     }
-    const dfs = (i: number, j: number): number => {
-        if (i >= n) {
-            return 0;
-        }
-        if (j === 0) {
-            return s[n] - s[i];
-        }
-        if (f[i][j] !== -1) {
-            return f[i][j];
-        }
-        if (s[i + 1] === s[i]) {
-            return dfs(i + 1, j);
-        }
-        const ans = Math.min(1 + dfs(i + 1, j), dfs(i + carpetLen, j - 1));
-        f[i][j] = ans;
-        return ans;
-    };
-    return dfs(0, numCarpets);
+  }
+  return all - dp[n - 1][numCarpets]
 }

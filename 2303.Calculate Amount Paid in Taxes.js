@@ -7,3 +7,4 @@ function calculateTax(brackets: number[][], income: number): number {
     }
     return ans / 100;
 }
+ 
