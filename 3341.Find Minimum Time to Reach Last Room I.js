@@ -71,4 +71,3 @@ const minTimeToReach = (moveTime) => {
     }
   }
 }
-

@@ -1,60 +1,65 @@
-const MX = 80;
-const MOD = 10 ** 9 + 7;
-const c: number[][] = Array.from({ length: MX }, () => Array(MX).fill(0));
-(function init() {
-    c[0][0] = 1;
-    for (let i = 1; i < MX; i++) {
-        c[i][0] = 1;
-        for (let j = 1; j <= i; j++) {
-            c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]) % MOD;
-        }
+const MOD = 1e9 + 7
+const MX = 80
+
+/**
+ * Count balanced digit permutations across two halves with equal sum
+ * Approach: DP + combinatorics
+ * @intuition Count assignments of digits into halves to achieve equal sum
+ * @approach Precompute Pascal's triangle locally, then DFS with memo to distribute digits and multiply by combination counts
+ * @complexity
+ *  time: O(n^2)
+ *  space: O(n^2)
+ */
+const countBalancedPermutations = (num) => {
+  const inputDigits = [...num].map(Number)
+  const countByDigit = Array(10).fill(0)
+  for (const digit of inputDigits) countByDigit[digit]++
+  const totalSum = inputDigits.reduce((accumulator, value) => accumulator + value, 0)
+  if (totalSum % 2 !== 0) return 0
+  const totalDigits = inputDigits.length
+  const leftHalfSize = Math.floor(totalDigits / 2)
+  const rightHalfSize = totalDigits - leftHalfSize
+  const targetHalfSum = totalSum / 2
+  const memoMap = new Map()
+  const combinationTable = (() => {
+    const table = Array.from({ length: MX }, () => Array(MX).fill(0))
+    table[0][0] = 1
+    for (let row = 1; row < MX; row++) {
+      table[row][0] = 1
+      for (let col = 1; col <= row; col++) table[row][col] = (table[row - 1][col - 1] + table[row - 1][col]) % MOD
     }
-})();
-
-function countBalancedPermutations(num: string): number {
-    const cnt = Array(10).fill(0);
-    let s = 0;
-    for (const ch of num) {
-        cnt[+ch]++;
-        s += +ch;
+    return table
+  })()
+  const dfs = (currentDigit, remainingSum, remainingLeftSlots, remainingRightSlots) => {
+    if (currentDigit > 9) return remainingSum === 0 && remainingLeftSlots === 0 && remainingRightSlots === 0 ? 1 : 0
+    if (remainingSum < 0 || remainingLeftSlots < 0 || remainingRightSlots < 0) return 0
+    const key = `${currentDigit},${remainingSum},${remainingLeftSlots},${remainingRightSlots}`
+    if (memoMap.has(key)) return memoMap.get(key)
+    let totalWays = 0n
+    for (
+      let leftCountChoice = 0;
+      leftCountChoice <= countByDigit[currentDigit] && leftCountChoice <= remainingLeftSlots;
+      leftCountChoice++
+    ) {
+      const rightCountChoice = countByDigit[currentDigit] - leftCountChoice
+      if (rightCountChoice > remainingRightSlots) continue
+      if (currentDigit * leftCountChoice > remainingSum) break
+      const leftCombCount = BigInt(combinationTable[remainingLeftSlots][leftCountChoice])
+      const rightCombCount = BigInt(combinationTable[remainingRightSlots][rightCountChoice])
+      const subWays = BigInt(
+        dfs(
+          currentDigit + 1,
+          remainingSum - currentDigit * leftCountChoice,
+          remainingLeftSlots - leftCountChoice,
+          remainingRightSlots - rightCountChoice,
+        ),
+      )
+      totalWays =
+        (totalWays + ((((leftCombCount * rightCombCount) % BigInt(MOD)) * subWays) % BigInt(MOD))) % BigInt(MOD)
     }
-
-    if (s % 2 !== 0) {
-        return 0;
-    }
-
-    const n = num.length;
-    const m = Math.floor(n / 2) + 1;
-    const f: Record<string, number> = {};
-
-    const dfs = (i: number, j: number, a: number, b: number): number => {
-        if (i > 9) {
-            return (j | a | b) === 0 ? 1 : 0;
-        }
-        if (a === 0 && j > 0) {
-            return 0;
-        }
-
-        const key = `${i},${j},${a},${b}`;
-        if (key in f) {
-            return f[key];
-        }
-
-        let ans = 0;
-        for (let l = 0; l <= Math.min(cnt[i], a); l++) {
-            const r = cnt[i] - l;
-            if (r >= 0 && r <= b && l * i <= j) {
-                const t = Number(
-                    (((BigInt(c[a][l]) * BigInt(c[b][r])) % BigInt(MOD)) *
-                        BigInt(dfs(i + 1, j - l * i, a - l, b - r))) %
-                        BigInt(MOD),
-                );
-                ans = (ans + t) % MOD;
-            }
-        }
-        f[key] = ans;
-        return ans;
-    };
-
-    return dfs(0, s / 2, Math.floor(n / 2), Math.floor((n + 1) / 2));
+    const result = Number(totalWays)
+    memoMap.set(key, result)
+    return result
+  }
+  return dfs(0, targetHalfSum, leftHalfSize, rightHalfSize)
 }
