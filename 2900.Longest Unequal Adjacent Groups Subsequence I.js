@@ -1,9 +1,11 @@
-function getWordsInLongestSubsequence(n: number, words: string[], groups: number[]): string[] {
-    const ans: string[] = [];
-    for (let i = 0; i < n; ++i) {
-        if (i === 0 || groups[i] !== groups[i - 1]) {
-            ans.push(words[i]);
-        }
-    }
-    return ans;
-}
+/**
+ * Greedy take one word per unique adjacent group
+ *
+ * @intuition contiguous groups can only contribute one word without making adjacent groups equal
+ * @approach filter words to include first element and those where group changes
+ * @complexity
+ * time O(n)
+ * space O(n)
+ */
+const getLongestSubsequence = (words, groups) =>
+  words.filter((word, index) => index === 0 || groups[index] !== groups[index - 1])
